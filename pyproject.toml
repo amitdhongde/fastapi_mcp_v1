@@ -3,7 +3,7 @@ name = "server"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "EllaiSys",email = "admin@ellaisys.com"}
+    {name = "EllaiSys",email = "ellaisys@gamil.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.14"
@@ -23,8 +23,14 @@ dependencies = [
     "sqlalchemy[asyncio] (>=2.0.46,<3.0.0)"
 ]
 
+[project.scripts]
+main_app = "server.main:app"
+
 [tool.poetry]
 packages = [{include = "server", from = "src"}]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
