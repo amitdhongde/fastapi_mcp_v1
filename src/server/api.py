@@ -1,5 +1,7 @@
 """ Import the required modules """
 import logging
+import uvicorn
+import webbrowser
 
 from contextlib import asynccontextmanager
 from typing import List
@@ -172,7 +174,7 @@ async def lifespan(_app: FastAPI):
         logger.info("********** Server Stopped **********")
 
 # Create an instance of the FastAPI class
-app = FastAPI(
+api_app = FastAPI(
     title=config.APP_NAME,
     description=config.APP_DESCRIPTION,
     version=config.APP_VERSION,
@@ -187,17 +189,35 @@ app = FastAPI(
     },
 )
 
-
 # Create an instance of the OAuth2PasswordBearer class
 #oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-
-@app.get("/")
+@api_app.get("/", operation_id="root", tags=["Root"], status_code=200)
 async def root():
     """Root endpoint."""
     return {"message": "Hello World"}
 
-@app.get("/health", status_code=200)
+@api_app.get("/health", operation_id="health", tags=["Health"], status_code=200)
 def health():
     """Api health endpoint."""
     return {"Api is up and running"}
+
+# Start the API server
+def start_api_server():
+    """ Start the Uvicorn server """
+    logging.info('********** API Server **********')
+    uvicorn.run(
+        app="server.api:api_app",
+        host=config.APP_HOST,
+        port=config.APP_PORT,
+        log_level="debug" if config.ENVIRONMENT != "production" else "info",
+        reload=True if config.ENVIRONMENT != "production" else False,
+        workers=1 if config.ENVIRONMENT != "production" else 4,
+    )
+
+    # Open the browser automatically
+    # webbrowser.open("http://127.0.0.1:"+str(config.APP_PORT), new=2)
+
+# Run the API server if this file is executed directly
+if __name__ == "__main__":
+    start_api_server()
