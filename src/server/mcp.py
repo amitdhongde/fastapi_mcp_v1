@@ -2,8 +2,6 @@
 import logging
 import uvicorn
 
-from contextlib import asynccontextmanager
-from typing import List
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
 
@@ -16,8 +14,8 @@ mcp_app = FastAPI(
     description=config.MCP_DESCRIPTION,
     version=config.MCP_VERSION,
     debug=config.DEBUG,
-    docs_url=None if config.ENVIRONMENT == "production" else "/docs",
-    redoc_url=None if config.ENVIRONMENT == "production" else "/redoc",
+    docs_url=None if config.ENVIRONMENT == "production" else "/mcp/documentation",
+    redoc_url=None if config.ENVIRONMENT == "production" else "/mcp/redocumentation",
 )
 mcp = FastApiMCP(
     mcp_app,
@@ -33,7 +31,7 @@ mcp.mount_http(
 )
 
 # Add new endpoints after MCP server creation
-@mcp_app.get("/sns", operation_id="get_message_sai_sonam_gudiya_guddo_seher_sonal_mani_mau_mishti_qmh_sf_pb", tags=["SnS"])
+@mcp_app.get("/sns", operation_id="get_message_qmh_sf_pb")
 async def new_endpoint():
     return {"message": "RR5555SF343434343434"}
 
