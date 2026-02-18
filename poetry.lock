@@ -95,18 +95,18 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.42.49"
+version = "1.42.51"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.49-py3-none-any.whl", hash = "sha256:99e1df4361c3f6ff6ade65803c043ea96314826134962dd3b385433b309eb819"},
-    {file = "boto3-1.42.49.tar.gz", hash = "sha256:9cd252f640567b86e92b0a8ffdd4ade9a3018ee357c724bff6a21b8c8a41be0c"},
+    {file = "boto3-1.42.51-py3-none-any.whl", hash = "sha256:c3e75ab1c4df6b1049aecfae56d15f5ff99d68ec6a05f24741bab08ad5d5406e"},
+    {file = "boto3-1.42.51.tar.gz", hash = "sha256:a010376cdc2432faa6c3338f04591142a1374da1b7eba94b80c0c7f1b525eff7"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.49,<1.43.0"
+botocore = ">=1.42.51,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -115,14 +115,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.49"
+version = "1.42.51"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.49-py3-none-any.whl", hash = "sha256:1c33544f72101eed4ccf903ebb667a803e14e25b2af4e0836e4b871da1c0af37"},
-    {file = "botocore-1.42.49.tar.gz", hash = "sha256:333115a64a507697b0c450ade7e2d82bc8b4e21c0051542514532b455712bdcc"},
+    {file = "botocore-1.42.51-py3-none-any.whl", hash = "sha256:216c4c148f37f882c7239fce1d8023acdc664643952ce1d6827c7edc829903d3"},
+    {file = "botocore-1.42.51.tar.gz", hash = "sha256:d7b03905b8066c25dd5bde1b7dc4af15ebdbaa313abbb2543db179b1d5efae3d"},
 ]
 
 [package.dependencies]
@@ -537,37 +537,37 @@ standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[stand
 
 [[package]]
 name = "fastapi-cli"
-version = "0.0.21"
+version = "0.0.23"
 description = "Run and manage FastAPI apps from the command line with FastAPI CLI. 🚀"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "fastapi_cli-0.0.21-py3-none-any.whl", hash = "sha256:57c6e043694c68618eee04d00b4d93213c37f5a854b369d2871a77dfeff57e91"},
-    {file = "fastapi_cli-0.0.21.tar.gz", hash = "sha256:457134b8f3e08d2d203a18db923a18bbc1a01d9de36fbe1fa7905c4d02a0e5c0"},
+    {file = "fastapi_cli-0.0.23-py3-none-any.whl", hash = "sha256:7e9634fc212da0b6cfc75bd3ac366cc9dfdb43b5e9ec12e58bfd1acdd2697f25"},
+    {file = "fastapi_cli-0.0.23.tar.gz", hash = "sha256:210ac280ea41e73aac5a57688781256beb23c2cba3a41266896fa43e6445c8e7"},
 ]
 
 [package.dependencies]
 fastapi-cloud-cli = {version = ">=0.1.1", optional = true, markers = "extra == \"standard\""}
 rich-toolkit = ">=0.14.8"
-typer = ">=0.15.1"
+typer = ">=0.16.0"
 uvicorn = {version = ">=0.15.0", extras = ["standard"]}
 
 [package.extras]
-new = ["fastapi-new (>=0.0.2) ; python_version >= \"3.10\""]
+new = ["fastapi-new (>=0.0.2)"]
 standard = ["fastapi-cloud-cli (>=0.1.1)", "uvicorn[standard] (>=0.15.0)"]
 standard-no-fastapi-cloud-cli = ["uvicorn[standard] (>=0.15.0)"]
 
 [[package]]
 name = "fastapi-cloud-cli"
-version = "0.12.0"
+version = "0.13.0"
 description = "Deploy and manage FastAPI Cloud apps from the command line 🚀"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "fastapi_cloud_cli-0.12.0-py3-none-any.whl", hash = "sha256:9c666c2ab1684cee48a5b0a29ac1ae0bd395b9a13bf6858448b4369ea68beda1"},
-    {file = "fastapi_cloud_cli-0.12.0.tar.gz", hash = "sha256:c897d1d5e27f5b4148ed2601076785155ec8fb385a6a62d3e8801880f929629f"},
+    {file = "fastapi_cloud_cli-0.13.0-py3-none-any.whl", hash = "sha256:874a9ed8dba34ec828f198c72de9f9a38de77ac1b15083d6bc3a4d772b0bc477"},
+    {file = "fastapi_cloud_cli-0.13.0.tar.gz", hash = "sha256:4d8f42337e8021c648f6cb0672de7d5b31b0fc7387a83d7b12f974600ac3f2fd"},
 ]
 
 [package.dependencies]
@@ -2337,20 +2337,20 @@ files = [
 
 [[package]]
 name = "typer"
-version = "0.23.1"
+version = "0.24.0"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "typer-0.23.1-py3-none-any.whl", hash = "sha256:3291ad0d3c701cbf522012faccfbb29352ff16ad262db2139e6b01f15781f14e"},
-    {file = "typer-0.23.1.tar.gz", hash = "sha256:2070374e4d31c83e7b61362fd859aa683576432fd5b026b060ad6b4cd3b86134"},
+    {file = "typer-0.24.0-py3-none-any.whl", hash = "sha256:5fc435a9c8356f6160ed6e85a6301fdd6e3d8b2851da502050d1f92c5e9eddc8"},
+    {file = "typer-0.24.0.tar.gz", hash = "sha256:f9373dc4eff901350694f519f783c29b6d7a110fc0dcc11b1d7e353b85ca6504"},
 ]
 
 [package.dependencies]
 annotated-doc = ">=0.0.2"
-click = ">=8.0.0"
-rich = ">=10.11.0"
+click = ">=8.2.1"
+rich = ">=12.3.0"
 shellingham = ">=1.3.0"
 
 [[package]]

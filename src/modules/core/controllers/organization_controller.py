@@ -24,6 +24,7 @@ class OrganizationController(BaseController):
 
     async def index(
             self,
+            commons: dict,
             request: Request,
             current_user: BaseModel) -> JsonSuccessResponse:
         """
@@ -33,7 +34,11 @@ class OrganizationController(BaseController):
             # Get the ip address from the request
             ip_address = request.client.host
 
-            response: BaseModel = await self.service.list(current_user, ip_address)
+            response: BaseModel = await self.service.list(
+                commons=commons,
+                request=request,
+                ip_address=ip_address
+            )
 
             # Send data from the service
             return JsonSuccessResponse(

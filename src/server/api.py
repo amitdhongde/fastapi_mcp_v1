@@ -21,7 +21,7 @@ from modules.user.routes.route import router as user_router
 from modules.base.fastapi.middlewares import SQLAlchemyMiddleware
 
 # Import the project exception handler
-from modules.base.exceptions.base import (
+from modules.base.exceptions import (
     BadRequestException,
     DuplicateValueException,
     EntityNotFoundException,
@@ -29,6 +29,9 @@ from modules.base.exceptions.base import (
     InvalidTokenException,
     ForbiddenException,
     UnauthorizedException,
+    NotFoundException,
+    InternalServerErrorException,
+    AWSValueException
 )
 from modules.base.exceptions.handler import custom_exception_handler
 
@@ -110,6 +113,7 @@ def init_routers(_app: FastAPI) -> None:
     _app.include_router(lookup_router)
     _app.include_router(user_router)
 
+# Add Exception Handlers
 def init_handlers(_app: FastAPI) -> None:
     """ Initialize Handlers """
     _app.add_exception_handler(
@@ -140,6 +144,18 @@ def init_handlers(_app: FastAPI) -> None:
         exc_class_or_status_code=UnauthorizedException,
         handler=custom_exception_handler(),
     )
+    _app.add_exception_handler(
+        exc_class_or_status_code=NotFoundException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
+        exc_class_or_status_code=InternalServerErrorException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
+        exc_class_or_status_code=AWSValueException,
+        handler=custom_exception_handler(),
+    )
 
 # Lifespan Event Handler
 @asynccontextmanager
@@ -160,7 +176,7 @@ async def lifespan(_app: FastAPI):
         init_routers(_app=_app)
 
         # Initilize Exception Handlers
-        init_handlers(_app=_app)
+        # init_handlers(_app=_app)
 
         yield
     finally:
@@ -179,8 +195,8 @@ api_app = FastAPI(
     description=config.APP_DESCRIPTION,
     version=config.APP_VERSION,
     debug=config.DEBUG,
-    docs_url=None if config.ENVIRONMENT == "production" else "/docs",
-    redoc_url=None if config.ENVIRONMENT == "production" else "/redoc",
+    docs_url=None if config.ENVIRONMENT == "production" else "/api/documentation",
+    redoc_url=None if config.ENVIRONMENT == "production" else "/api/redocumentation",
     lifespan=lifespan,
     middleware=make_middleware(),
     default_response_class=JsonSuccessResponse,
@@ -192,15 +208,20 @@ api_app = FastAPI(
 # Create an instance of the OAuth2PasswordBearer class
 #oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@api_app.get("/", operation_id="root", tags=["Root"], status_code=200)
+""" Add Exception Handlers
+This is used to handle the exceptions raised in the application.
+"""
+init_handlers(api_app)
+
+@api_app.get("/")
 async def root():
     """Root endpoint."""
     return {"message": "Hello World"}
 
-@api_app.get("/health", operation_id="health", tags=["Health"], status_code=200)
+@api_app.get("/health", status_code=200)
 def health():
-    """Api health endpoint."""
-    return {"Api is up and running"}
+    """API health endpoint."""
+    return {"API is up and running"}
 
 # Start the API server
 def start_api_server():

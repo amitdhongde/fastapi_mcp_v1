@@ -4,7 +4,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 # Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
-    Float,
+    Double,
     ForeignKey,
     Integer,
     DateTime,
@@ -19,9 +19,9 @@ from modules.base.db.base import (
 )
 
 if TYPE_CHECKING:
-    from modules.core.schemas import LookUpSchema as LookUp
     from modules.core.schemas import (
-        OrganizationConfigurationSchema as OrganizationConfiguration
+        LookUpSchema,
+        OrganizationConfigurationSchema
     )
 
 
@@ -67,8 +67,8 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     state_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     country_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     zipcode: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    latitude: Mapped[float] = mapped_column(Float, nullable=True)
-    longitude: Mapped[float] = mapped_column(Float, nullable=True)
+    latitude: Mapped[float] = mapped_column(Double, nullable=True)
+    longitude: Mapped[float] = mapped_column(Double, nullable=True)
 
     # Contact fields
     phone: Mapped[str] = mapped_column(String(32), nullable=True, index=False)
@@ -94,9 +94,9 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     )
 
     # Relationships
-    type: Mapped["LookUp"] = relationship(
-        "LookUp", back_populates="organizations"
+    type: Mapped["LookUpSchema"] = relationship(
+        single_parent=True, uselist=False
     )
-    configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
-        back_populates="organizations"
+    configurations: Mapped[List["OrganizationConfigurationSchema"]] = relationship(
+        back_populates="organization"
     )

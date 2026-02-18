@@ -1,12 +1,17 @@
 """ Import the required modules """
-from typing import Any
+from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
+from modules.base.fastapi.dependencies import (
+    common_parameters
+)
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.organization_controller import OrganizationController as Controller
+from modules.core.controllers import (
+    OrganizationController as Controller
+)
 
 # Include the project models
 from ..models.organization.request import (
@@ -14,15 +19,24 @@ from ..models.organization.request import (
     OrganizationUpdateRequest
 )
 
+# Exception classes
+from modules.base.exceptions import (
+    InvalidTokenException
+)
+
 # Create the module router
 router = APIRouter(prefix="/organization", tags=["Organization"])
 
 
 @router.get("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[
+            Depends(AuthGaurd),
+            Depends(common_parameters)
+        ],
         name="get_organizations"
     )
 async def index(
+        commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
@@ -31,9 +45,11 @@ async def index(
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
+    if not access_token:
+        raise InvalidTokenException()
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().index(request, current_user)
+    return await Controller().index(commons, request, current_user)
 
 
 @router.get("/{uid}",
@@ -50,6 +66,8 @@ async def show(
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
+    if not access_token:
+        raise
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().show(uid, request, current_user)
