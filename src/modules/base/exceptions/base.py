@@ -25,17 +25,17 @@ class GenericBaseException(Exception):
     message: str = HTTPStatus.BAD_REQUEST.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
         super().__init__(self.message)
 
     def __str__(self):
         return (
-            f"<GenericBaseException {self.__class__} - "
-            + f"status_code={self.status_code} - context={self.__context__}>"
+            f"{self.__class__}- status_code={self.status_code}- error_code={self.error_code}- "
+            + f"status_code={self.status_code}- context={self.__context__}"
         )
 
 # Bad Request Exception : 400
@@ -47,12 +47,12 @@ class BadRequestException(GenericBaseException):
     error_msg_code: str = 'error_code_bad_request'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Duplicate Value Exception : 400
 class DuplicateValueException(BadRequestException):
@@ -64,12 +64,12 @@ class DuplicateValueException(BadRequestException):
     error_msg_code = 'error_code_duplicate_value'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Entity Not Found Exception : 400
 class EntityNotFoundException(BadRequestException):
@@ -81,12 +81,12 @@ class EntityNotFoundException(BadRequestException):
     error_msg_code = 'error_code_entity_not_found'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Entity Not Found Exception : 400
 class EntityNotSavedException(BadRequestException):
@@ -98,12 +98,12 @@ class EntityNotSavedException(BadRequestException):
     error_msg_code = 'error_code_entity_not_saved'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Authentication Exception : 401
 class AuthenticationException(GenericBaseException):
@@ -118,12 +118,12 @@ class AuthenticationException(GenericBaseException):
     message: str = HTTPStatus.UNAUTHORIZED.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=self.error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Invalid Token Exception : 401
 class InvalidTokenException(AuthenticationException):
@@ -135,12 +135,12 @@ class InvalidTokenException(AuthenticationException):
     error_msg_code: str = 'error_code_invalid_token'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Forbidden Exception : 403
 class ForbiddenException(GenericBaseException):
@@ -155,12 +155,12 @@ class ForbiddenException(GenericBaseException):
     message: str = HTTPStatus.FORBIDDEN.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Unauthorized Exception : 403
 class UnauthorizedException(ForbiddenException):
@@ -172,12 +172,12 @@ class UnauthorizedException(ForbiddenException):
     error_msg_code = 'error_code_unauthorized'
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Not Found Exception : 404
 class NotFoundException(GenericBaseException):
@@ -191,39 +191,36 @@ class NotFoundException(GenericBaseException):
     message = HTTPStatus.NOT_FOUND.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Unprocessable Entity Exception : 422
 class UnprocessableEntity(GenericBaseException):
-    code = HTTPStatus.UNPROCESSABLE_ENTITY
+    status_code = HTTPStatus.UNPROCESSABLE_ENTITY
     error_code = HTTPStatus.UNPROCESSABLE_ENTITY
     error_msg_code = 'error_code_unprocessable_entity'
     message = HTTPStatus.UNPROCESSABLE_ENTITY.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Model Validation Exception : 422
-class ModelValidationException(GenericBaseException):
-    code = HTTPStatus.UNPROCESSABLE_CONTENT
-    error_code = HTTPStatus.UNPROCESSABLE_CONTENT
+class ModelValidationException(UnprocessableEntity):
     error_msg_code = 'error_code_model_validation'
-    message = HTTPStatus.UNPROCESSABLE_CONTENT.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
         super().__init__(message=self.message, error_msg_code=self.error_msg_code)
@@ -235,15 +232,15 @@ class InternalServerErrorException(GenericBaseException):
     This exception is used when a request cannot be processed
     due to an internal server error.
     """
-    code = HTTPStatus.INTERNAL_SERVER_ERROR
+    status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     error_code = HTTPStatus.INTERNAL_SERVER_ERROR
     error_msg_code = 'error_code_internal_server_error'
     message = HTTPStatus.INTERNAL_SERVER_ERROR.description
 
     def __init__(self, message: str|None=None, error_msg_code: str|None=None):
-        if message:
+        if message is not None:
             self.message = message
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
         super().__init__(message=self.message, error_msg_code=self.error_msg_code)
@@ -258,9 +255,9 @@ class AWSValueException(BadRequestException):
     error_msg_code = 'error_code_aws'
 
     def __init__(self, exception: ClientError, error_msg_code: str|None=None):
-        if exception:
+        if exception is not None:
             self.message = exception.response["Error"]["Message"]
-        if error_msg_code:
+        if error_msg_code is not None:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=self.message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)

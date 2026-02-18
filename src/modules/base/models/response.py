@@ -1,8 +1,8 @@
 import typing
 import json
-from typing import Generic, Optional
+from typing import Generic
 from fastapi import status, Response
-from pydantic import SerializeAsAny, BaseModel
+from pydantic import BaseModel
 from starlette.background import BackgroundTask
 
 # Imclude the project modules
@@ -11,7 +11,6 @@ from modules.base.config import config
 # Include the project models
 from .base import GenericResponse as GenericResponseModel, T
 from ..exceptions.base import GenericBaseException
-
 
 # """ Generic Success Response Model
 
@@ -33,33 +32,28 @@ class SuccessModel(GenericResponseModel, Generic[T]):
     message: str = "success"
     success: bool = True
 
-
-""" Generic Error Response Model
-
-This model is used to represent the error response for all the endpoints.
-It contains the following fields:
-- status_code: The HTTP status code of the response.
-- error_code: The error code of the response.
-- error_msg_code: The error message code of the response.
-- message: The error message of the response.
-- context: The context of the error.
-- success: A boolean indicating whether the request was successful or not.
-"""
 class ErrorModel(GenericResponseModel, Generic[T]):
     """
-    Base model for all error response models.
+    Generic Error Response Model
+
+    This model is used to represent the error response for all the endpoints.
+    It contains the following fields:
+    - status_code: The HTTP status code of the response.
+    - error_code: The error code of the response.
+    - error_msg_code: The error message code of the response.
+    - message: The error message of the response.
+    - context: The context of the error.
+    - success: A boolean indicating whether the request was successful or not.
     """
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     message: str = "error"
     success: bool = False
-
 
 class BaseResponse(Response):
     """
     Base class for all response models.
     """
     media_type: str = "application/json"
-
 
 class JsonErrorResponse(BaseResponse):
     media_type: str = "application/json"
@@ -106,13 +100,12 @@ class JsonErrorResponse(BaseResponse):
             separators=(",", ":"),
         ).encode("utf-8")
 
-
-""" JSON Success Response
-
-This response class is used to represent the JSON success response for 
-all the endpoints.
-"""
 class JsonSuccessResponse(BaseResponse):
+    """ JSON Success Response
+    This response class is used to represent the JSON success response for 
+    all the endpoints.
+    """
+
     media_type = "application/json"
 
     def __init__(
@@ -166,4 +159,3 @@ class JsonSuccessResponse(BaseResponse):
             indent=None,
             separators=(",", ":"),
         ).encode("utf-8")
-    

@@ -14,7 +14,6 @@ from .base import (
     AWSValueException
 )
 
-
 __all__ = [
     "GenericBaseException",
     "BadRequestException",

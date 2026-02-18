@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 # Include the project modules
 from modules.base.models.response import JsonSuccessResponse
-from modules.base.controller.base import BaseController
+from modules.base.controller import BaseController
 
 # Include the project services
 from ..services.service import AuthService
@@ -17,7 +17,6 @@ from ..models.request import (
     ChangePasswordRequest,
     ResetPasswordRequest
 )
-
 
 class AuthController(BaseController):
     """

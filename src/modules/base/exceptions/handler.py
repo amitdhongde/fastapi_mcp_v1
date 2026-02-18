@@ -18,7 +18,8 @@ def custom_exception_handler() -> Callable[
     It takes a request and an exception as input and returns a JSON response
     with the error details.
     """
-    async def exception_handler(_: Request, exception: GenericBaseException) -> JsonErrorResponse:
+    def exception_handler(
+            _: Request, exception: GenericBaseException) -> JsonErrorResponse:
 
         # Log the exception if needed
         logger.error(exception)
