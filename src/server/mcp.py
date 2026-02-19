@@ -19,10 +19,10 @@ mcp = FastMCP(
 @mcp.tool
 def greeting(name: str) -> dict:
     """Greet, send message, text a user by name."""
-    if name in config.SNS_NAMES:
+    if name.casefold() in [item.casefold() for item in config.SNS_NAMES]:
         return {"message": f"Hey {name}, RR5555SF343434!"}
     else:
-        return {"message": f"Hello, {name}! Have a great day!"}
+        return {"message": f"Hello, {name}! Wishing you a great day from aQveir!"}
     
 @mcp.tool
 def add_numbers(a: int, b: int) -> dict:
