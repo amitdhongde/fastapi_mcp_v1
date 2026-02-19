@@ -29,7 +29,7 @@ dynamic = ["scripts", "entry-points"]
 api_app = "server.api:start_api_server"
 
 [tool.poetry]
-packages = [{include = "server", from = "src"}]
+packages = [{include = "*", from = "src"}]
 
 [tool.poetry.scripts]
 api_app = "server.api:start_api_server"
