@@ -3,47 +3,68 @@ import logging
 import uvicorn
 
 from fastapi import FastAPI
-from fastapi_mcp import FastApiMCP
+from fastmcp import FastMCP
 
 # Import the project configuration
 from modules.base.config import config
 
-# MCP Application
-mcp_app = FastAPI(
-    title=config.MCP_NAME,
-    description=config.MCP_DESCRIPTION,
-    version=config.MCP_VERSION,
-    debug=config.DEBUG,
-    docs_url=None if config.ENVIRONMENT == "production" else "/mcp/documentation",
-    redoc_url=None if config.ENVIRONMENT == "production" else "/mcp/redocumentation",
-)
-mcp = FastApiMCP(
-    mcp_app,
+# MCP Server setup
+mcp = FastMCP(
     name=config.MCP_NAME,
-    description=config.MCP_DESCRIPTION,
-    describe_full_response_schema=True,  # Describe the full response JSON-schema instead of just a response example
-    describe_all_responses=True,  # Describe all the possible responses instead of just the success (2XX) response
+    version=config.MCP_VERSION,
+    instructions=config.MCP_DESCRIPTION
 )
 
-# Mount the MCP application to the main FastAPI app
-mcp.mount_http(
-    mcp_app
-)
+# Add new tools to the MCP server
+@mcp.tool
+def greeting(name: str) -> dict:
+    """Greet, send message, text a user by name."""
+    if name in config.SNS_NAMES:
+        return {"message": f"Hey {name}, RR5555SF343434!"}
+    else:
+        return {"message": f"Hello, {name}! Have a great day!"}
+    
+@mcp.tool
+def add_numbers(a: int, b: int) -> dict:
+    """Add two numbers and return the result."""
+    result = a + b
+    return {"result": result}
 
-# Add new endpoints after MCP server creation
-@mcp_app.get("/sns", operation_id="get_message_qmh_sf_pb")
-async def new_endpoint():
-    return {"message": "RR5555SF343434343434"}
+@mcp.tool
+def multiply_numbers(a: int, b: int) -> dict:
+    """Multiply two numbers and return the result."""
+    result = a * b
+    return {"result": result}
 
-# Refresh the MCP server to include the new endpoint
-mcp.setup_server()
+@mcp.tool
+def divide_numbers(a: int, b: int) -> dict:
+    """Divide two numbers and return the result."""
+    if b == 0:
+        return {"error": "Cannot divide by zero."}
+    result = a / b
+    return {"result": result}
+
+@mcp.tool
+def subtract_numbers(a: int, b: int) -> dict:
+    """Subtract two numbers and return the result."""
+    result = a - b
+    return {"result": result}
+
+# Create the MCP ASGI app with path="/"
+mcp_app = mcp.http_app(path="/")
+
+# Create FastAPI app with MCP lifespan (required for session management)
+api = FastAPI(lifespan=mcp_app.lifespan)
+
+# Mount MCP at /mcp
+api.mount("/mcp", mcp_app)
 
 # Start the MCP server
 def start_mcp_server():
     """ Start the Uvicorn server """
     logging.info('********** MCP Server **********')
     uvicorn.run(
-        app="server.mcp:mcp_app",
+        app="server.mcp:api",
         host=config.MCP_HOST,
         port=config.MCP_PORT,
         log_level="debug" if config.ENVIRONMENT != "production" else "info"

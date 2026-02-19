@@ -100,6 +100,12 @@ class Config(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
 
+    SNS_NAMES: list[str] = [
+        "pb", "sf", "qmh", "gudiya", "guddo",
+        "pinkuli", "shakti", "sweetu",
+        "sonam", "sai"
+    ]
+
 
 class TestConfig(Config):
     DEBUG: bool = False
