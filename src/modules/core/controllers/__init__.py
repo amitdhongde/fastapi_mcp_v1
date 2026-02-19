@@ -2,7 +2,7 @@
 from .organization_controller import OrganizationController
 from .lookup_controller import LookupController
 
-_all__ = [
+__all__ = [
     "OrganizationController",
     "LookupController",
 ]

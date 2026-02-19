@@ -6,36 +6,35 @@ from fastapi import APIRouter, Depends, Request
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.lookup_controller import LookupController as Controller
+from ..controllers import DocumentController as Controller
 
 # Include the project models
-from ..models.organization.request import (
-    OrganizationCreateRequest,
-    OrganizationUpdateRequest
+from ..models import (
+    DocumentCreateRequest,
+    DocumentUpdateRequest
 )
 
-# Create the module router
-router = APIRouter(prefix="/lookup", tags=["LookUp"])
+router = APIRouter(prefix="/documents", tags=["Documents"])
 
 @router.get("/",
         dependencies=[Depends(AuthGaurd)],
-        name="get_lookups",
-        operation_id="get_lookup_list"
+        name="get_documents",
+        operation_id="get_document_list"
     )
 async def index(
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get all lookup data.
+    Get all documents.
     """
     current_user = auth.current_user()
     return await Controller().index(request, current_user)
 
 @router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="get_lookup",
-        operation_id="get_lookup"
+        name="get_document",
+        operation_id="get_document"
     )
 async def show(
         uid: str,
@@ -43,23 +42,23 @@ async def show(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get the lookup data with the given uid.
+    Get the document data with the given uid.
     """
     current_user = auth.current_user()
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
-        name="create_lookup",
-        operation_id="create_lookup"
+        name="create_document",
+        operation_id="create_document"
     )
 async def create(
-        payload: OrganizationCreateRequest,
+        payload: DocumentCreateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Create a new lookup with the given payload.
+    Create a new document with the given payload.
     """
     current_user = auth.current_user()
     return await Controller().create(
@@ -69,17 +68,17 @@ async def create(
 
 @router.put("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="update_lookup",
-        operation_id="update_lookup"
+        name="update_document",
+        operation_id="update_document"
     )
 async def update(
         uid: str,
-        payload: OrganizationUpdateRequest,
+        payload: DocumentUpdateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Update the lookup with the given uid and payload.
+    Update the document with the given uid and payload.
     """
     current_user = auth.current_user()
     return await Controller().update(
@@ -89,8 +88,8 @@ async def update(
 
 @router.delete("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="delete_lookup",
-        operation_id="delete_lookup"
+        name="delete_document",
+        operation_id="delete_document"
     )
 async def delete(
         uid: str,
@@ -98,7 +97,7 @@ async def delete(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Delete the lookup with the given uid.
+    Delete the document with the given uid.
     """
     current_user = auth.current_user()
     return await Controller().delete(

@@ -18,6 +18,9 @@ from modules.auth.routes.route import router as auth_router
 from modules.core.routes.organization_router import router as organization_router
 from modules.core.routes.lookup_router import router as lookup_router
 from modules.user.routes.route import router as user_router
+from modules.note.routes import note_router
+from modules.document.routes import document_router
+
 from modules.base.fastapi.middlewares import SQLAlchemyMiddleware
 
 # Import the project exception handler
@@ -112,6 +115,8 @@ def init_routers(_app: FastAPI) -> None:
     _app.include_router(organization_router)
     _app.include_router(lookup_router)
     _app.include_router(user_router)
+    _app.include_router(note_router)
+    _app.include_router(document_router)
 
 # Add Exception Handlers
 def init_handlers(_app: FastAPI) -> None:

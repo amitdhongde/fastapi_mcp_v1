@@ -6,21 +6,20 @@ from fastapi import APIRouter, Depends, Request
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.lookup_controller import LookupController as Controller
+from ..controllers import NoteController as Controller
 
 # Include the project models
-from ..models.organization.request import (
-    OrganizationCreateRequest,
-    OrganizationUpdateRequest
+from ..models import (
+    NoteCreateRequest,
+    NoteUpdateRequest
 )
 
-# Create the module router
-router = APIRouter(prefix="/lookup", tags=["LookUp"])
+router = APIRouter(prefix="/notes", tags=["Notes"])
 
 @router.get("/",
         dependencies=[Depends(AuthGaurd)],
-        name="get_lookups",
-        operation_id="get_lookup_list"
+        name="get_notes",
+        operation_id="get_note_list"
     )
 async def index(
         request: Request,
@@ -34,8 +33,8 @@ async def index(
 
 @router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="get_lookup",
-        operation_id="get_lookup"
+        name="get_note",
+        operation_id="get_note"
     )
 async def show(
         uid: str,
@@ -43,23 +42,23 @@ async def show(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get the lookup data with the given uid.
+    Get the note data with the given uid.
     """
     current_user = auth.current_user()
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
-        name="create_lookup",
-        operation_id="create_lookup"
+        name="create_note",
+        operation_id="create_note"
     )
 async def create(
-        payload: OrganizationCreateRequest,
+        payload: NoteCreateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Create a new lookup with the given payload.
+    Create a new note with the given payload.
     """
     current_user = auth.current_user()
     return await Controller().create(
@@ -69,17 +68,17 @@ async def create(
 
 @router.put("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="update_lookup",
-        operation_id="update_lookup"
+        name="update_note",
+        operation_id="update_note"
     )
 async def update(
         uid: str,
-        payload: OrganizationUpdateRequest,
+        payload: NoteUpdateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Update the lookup with the given uid and payload.
+    Update the note with the given uid and payload.
     """
     current_user = auth.current_user()
     return await Controller().update(
@@ -89,8 +88,8 @@ async def update(
 
 @router.delete("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="delete_lookup",
-        operation_id="delete_lookup"
+        name="delete_note",
+        operation_id="delete_note"
     )
 async def delete(
         uid: str,
@@ -98,7 +97,7 @@ async def delete(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Delete the lookup with the given uid.
+    Delete the note with the given uid.
     """
     current_user = auth.current_user()
     return await Controller().delete(
