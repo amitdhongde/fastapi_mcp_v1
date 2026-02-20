@@ -79,7 +79,9 @@ def upgrade() -> None:
     op.create_index(
         op.f('ix_lookups_display_value'), 'lookups', ['display_value'], unique=False
     )
-    op.create_index(op.f('ix_lookups_organization_id'), 'lookups', ['organization_id'], unique=False)
+    op.create_index(
+        op.f('ix_lookups_organization_id'), 'lookups', ['organization_id'], unique=False
+    )
     # ### end Alembic commands ###
 
 

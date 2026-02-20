@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Request
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.controller import AuthController
+from ..controllers import AuthController as Controller
 
 # Include the project models
 from ..models.request import (
@@ -28,7 +28,7 @@ async def authenticate(
     """
     Authenticate a user with the given credentials.
     """
-    return await AuthController().authenticate(credentials, request)
+    return await Controller().authenticate(credentials, request)
 
 
 @router.put("/logout",
@@ -41,7 +41,7 @@ async def logout(
     Logout a user with the given access token.
     """
     access_token: str = auth.valid_token()
-    return await AuthController().logout(access_token, is_forced=False)
+    return await Controller().logout(access_token, is_forced=False)
 
 
 @router.put("/logout/forced",
@@ -56,7 +56,7 @@ async def logout_forced(
     This is a forced logout.
     """
     access_token: str = auth.valid_token()
-    return await AuthController().logout(access_token, is_forced=True)
+    return await Controller().logout(access_token, is_forced=True)
 
 
 @router.post("/register")
@@ -67,7 +67,7 @@ async def register(
     """
     Register a new user with the given payload.
     """
-    return await AuthController().register(payload, request)
+    return await Controller().register(payload, request)
 
 
 @router.post("/forgot-password")
@@ -78,7 +78,7 @@ async def forgot_password(
     """
     Send a forgot password email to the user with the given payload.
     """
-    return await AuthController().forgot_password(payload, request)
+    return await Controller().forgot_password(payload, request)
 
 
 @router.post("/change-password", dependencies=[Depends(AuthGaurd)])
@@ -90,7 +90,7 @@ async def change_password(
     """
     Change the password of the user with the given payload.
     """
-    return await AuthController().change_password(payload, request)
+    return await Controller().change_password(payload, request)
 
 
 @router.get("/token/refresh",
@@ -105,4 +105,4 @@ async def refresh_token(
     Refresh the access token of the user with the given refresh token.
     """
     access_token: str = auth.valid_token()
-    return await AuthController().refresh_token(access_token, request)
+    return await Controller().refresh_token(access_token, request)

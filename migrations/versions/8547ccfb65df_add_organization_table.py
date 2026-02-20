@@ -111,6 +111,6 @@ def downgrade() -> None:
     op.drop_index(
         op.f('ix_public_organizations_custom_domain'),
         table_name='organizations')
-    
+
     op.drop_table('organizations', if_exists=True)
     # ### end Alembic commands ###

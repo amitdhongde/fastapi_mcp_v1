@@ -4,7 +4,7 @@ from typing import Annotated, Self
 from pydantic import ConfigDict, Field
 
 # Import the project models
-from modules.base.models.base import AppBaseModelWithHashAndAuditLog
+from modules.base.models import AppBaseModelWithHashAndAuditLog
 
 class Organization(AppBaseModelWithHashAndAuditLog):
     """

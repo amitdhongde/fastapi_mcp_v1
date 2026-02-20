@@ -1,7 +1,6 @@
 import typing
 from typing import Callable
 
-
 class BaseEvent:
     event_name: str = "unique_event_name"
 
@@ -18,8 +17,8 @@ class BaseEvent:
 
     def unregister(self):
         if self.event_name in self.subscribers:
-            self.subscribers.remove(self.event_name)
-        
+            self.subscribers.pop(self.event_name)
+
 
     def raise_event(self, data: typing.Any):
         if not self.event_name in self.subscribers:

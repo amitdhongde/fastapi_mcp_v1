@@ -1,5 +1,5 @@
 """ Import the required modules """
-from modules.base.events.base import BaseEvent
+from modules.base.events import BaseEvent
 
 class LoginEvent(BaseEvent):
     """

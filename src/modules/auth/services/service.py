@@ -17,7 +17,7 @@ from modules.base.services.auth.claim_service import ClaimService
 from ..repositories.repository import AuthRepository
 
 # Include the module events
-from ..events.login_event import LoginEvent
+from ..events import LoginEvent
 
 # Include the module exceptions
 from modules.base.exceptions.base import *

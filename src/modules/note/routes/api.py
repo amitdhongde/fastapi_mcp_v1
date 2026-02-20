@@ -61,6 +61,7 @@ async def create(
     Create a new note with the given payload.
     """
     current_user = auth.current_user()
+
     return await Controller().create(
             payload, request,
             current_user

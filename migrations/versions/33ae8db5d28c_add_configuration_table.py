@@ -65,9 +65,15 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id'),
         if_not_exists=True
     )
-    op.create_index(op.f('ix_configurations_data_key'), 'configurations', ['data_key'], unique=False)
-    op.create_index(op.f('ix_configurations_data_type'), 'configurations', ['data_type'], unique=False)
-    op.create_index(op.f('ix_configurations_id'), 'configurations', ['id'], unique=False)
+    op.create_index(
+        op.f('ix_configurations_data_key'), 'configurations', ['data_key'], unique=False
+    )
+    op.create_index(
+        op.f('ix_configurations_data_type'), 'configurations', ['data_type'], unique=False
+    )
+    op.create_index(
+        op.f('ix_configurations_id'), 'configurations', ['id'], unique=False
+    )
     # ### end Alembic commands ###
 
 

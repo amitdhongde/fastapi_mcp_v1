@@ -1,4 +1,4 @@
-from modules.auth.events.login_event import LoginEvent
+from modules.auth.events import LoginEvent
 
 def handle_user_registered_event(user):
     print(f"User registered with email address")
