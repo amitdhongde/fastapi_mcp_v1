@@ -24,7 +24,7 @@ class Note(AppBaseModelWithHashAndAuditLog):
             examples=["Meeting Notes", "Project Update"],
             nullable=False
         )
-    note: str = Field(default=None, description="Text content of the note.",
+    content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."],
             nullable=False
         )

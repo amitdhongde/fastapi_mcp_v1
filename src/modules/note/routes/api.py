@@ -14,7 +14,7 @@ from ..models import (
     NoteUpdateRequest
 )
 
-router = APIRouter(prefix="/notes", tags=["Notes"])
+router = APIRouter(prefix="/note", tags=["Notes"])
 
 @router.get("/",
         dependencies=[Depends(AuthGaurd)],
@@ -60,7 +60,12 @@ async def create(
     """
     Create a new note with the given payload.
     """
-    current_user = auth.current_user()
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+    if not access_token:
+        raise InvalidTokenException()
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
 
     return await Controller().create(
             payload, request,

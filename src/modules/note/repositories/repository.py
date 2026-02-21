@@ -1,22 +1,16 @@
-""" Repository for Note model. """
-from ..models import Note
+""" Import the required modules """
+from modules.base.repository import BaseRepository
 
-class NoteRepository():
-    def __init__(self):
-        #super().__init__(Note)
-        pass
+# Import the schema and model classes
+from modules.note.schemas import NoteSchema
 
-    async def index(self):
-        return 'NoteRepository index'
+class NoteRepository(BaseRepository[NoteSchema]):
+    """
+    This class to handle object related database operations.
 
-    async def show(self, hash: str):
-        return f'NoteRepository show {hash}'
-
-    async def create(self, note: Note):
-        return 'NoteRepository create'
-
-    async def update(self, hash: str, note: Note):
-        return f'NoteRepository update {hash}'
-
-    async def delete(self, hash: str):
-        return f'NoteRepository delete {hash}'
+    This class provides methods to perform CRUD operations on the database.
+    It uses SQLAlchemy to interact with the database.
+    """
+    def __init__(self, model = NoteSchema):
+        self.model = model
+        super().__init__(model)

@@ -1,4 +1,6 @@
 """ Import the required modules """
+import datetime
+import time
 from typing_extensions import Self
 from pydantic import (
     BaseModel, Field, model_validator
@@ -12,7 +14,7 @@ class NoteBaseModel(BaseModel):
             examples=["Meeting Notes", "Project Update"],
             nullable=False
         )
-    note: str = Field(default=None, description="Text content of the note.",
+    content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."], max_length=8000,
             nullable=False
         )
@@ -23,16 +25,21 @@ class NoteBaseModel(BaseModel):
         Validate the title field to check if it is not empty.
         """
         if not self.title or self.title.strip() == "":
-            self.title = "Untitled Note"
+            # UTC time to the second
+            current_date = datetime.date.fromtimestamp(time.time())
+
+            # If the title is empty, set it to "Untitled Note" with the current timestamp
+            self.title = f"Untitled Note - {current_date.isoformat()}"
+
         return self
 
     @model_validator(mode='after')
-    def check_note(self) -> Self:
+    def check_content(self) -> Self:
         """
-        Validate the note field to check if it is not empty.
+        Validate the content field to check if it is not empty.
         """
-        if not self.note or self.note.strip() == "":
-            raise ValueError('Note cannot be empty')
+        if not self.content or self.content.strip() == "":
+            raise ValueError('Content cannot be empty')
         return self
 
 # Define the Create model

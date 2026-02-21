@@ -35,11 +35,12 @@ class NoteController(BaseController):
             # Get the ip address from the request
             ip_address = request.client.host
 
-            payload.created_by = current_user.id
-            payload.created_ip = ip_address
+            # Convert the payload to dict
+            payload = payload.model_dump()
 
             response: BaseModel = await self.service.create(
-                payload
+                payload, ip_address,
+                current_user
             )
 
             # Send data from the service

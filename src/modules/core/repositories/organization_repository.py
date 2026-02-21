@@ -7,7 +7,8 @@ from modules.core.schemas import OrganizationSchema
 
 class OrganizationRepository(BaseRepository[OrganizationSchema]):
     """
-    OrganizationRepository class to handle organization related database operations.
+    This class to handle object related database operations.
+    
     This class provides methods to perform CRUD operations on the database.
     It uses SQLAlchemy to interact with the database.
     """

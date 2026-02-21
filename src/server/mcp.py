@@ -8,12 +8,19 @@ from fastmcp import FastMCP
 # Import the project configuration
 from modules.base.config import config
 
+# Import the other MCP tools
+from modules.note.routes import note_mcp
+
 # MCP Server setup
 mcp = FastMCP(
     name=config.MCP_NAME,
     version=config.MCP_VERSION,
     instructions=config.MCP_DESCRIPTION
 )
+
+# Mount other MCP tools
+mcp.mount(note_mcp)
+
 
 # Add new tools to the MCP server
 @mcp.tool

@@ -45,6 +45,10 @@ class BaseRepository(Generic[T]):
 
             # Add the model instance to the session
             self.session.add(model)
+            await self.session.commit()
+            await self.session.flush()
+            await self.session.refresh(model)
+            # await self.session.expire(model)
 
             return model
         except EntityNotSavedException as e:

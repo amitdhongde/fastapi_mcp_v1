@@ -70,25 +70,23 @@ class AuthGaurd:
         try:
             # This could be JWT validation.
             claim: AuthClaim = self.claim_service.get(value=self.access_token)
-            if claim == None:
+            if claim is None:
                 raise InvalidTokenException(
                     error_msg_code="error_code_claim_not_found2"
                 )
-            
-            user = claim.user
 
+            user = claim.user
             return user
         except (InvalidTokenException, Exception) as e:
             raise e
 
-    
     # async def valid_token(self, token: str) -> str:
     #     try:
     #         # This could be JWT validation, looking up a session token in the DB, etc.
     #         return token
     #     except Exception as e:
     #         raise InvalidTokenException(message=str(e)) from e
-  
+
 
     # async def get_user_for_token(token: str):
     #     return await User(1, "Amit", "amit@gmail.com")
@@ -102,18 +100,17 @@ class AuthGaurd:
         #     return user
         # except:
         #     raise HTTPException(status_code=401, detail="Unauthorized")
-    
-# class TokenGuard_ValidUser(TokenGaurd_ValidToken):
 
-#     async def __call__(self, request: Request = Depends(Request)):
-#         user = await self.validate_user(request)
-#         return user
-    
-# class TokenGuard_ValidPermissions(TokenGaurd_ValidToken):
+        # class TokenGuard_ValidUser(TokenGaurd_ValidToken):
 
-#     async def __call__(self, request: Request = Depends(Request)):
-#         user = await self.validate_permissions(request)
-#         return user
-    
+        #     async def __call__(self, request: Request = Depends(Request)):
+        #         user = await self.validate_user(request)
+        #         return user
+
+        # class TokenGuard_ValidPermissions(TokenGaurd_ValidToken):
+
+        #     async def __call__(self, request: Request = Depends(Request)):
+        #         user = await self.validate_permissions(request)
+        #         return user
 
 auth = AuthGaurd
