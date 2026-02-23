@@ -1,110 +1,171 @@
-# from sqlalchemy import (
-#     Column,
-#     Integer,
-#     String,
-#     DateTime,
-#     Float,
-#     Boolean,
-#     ForeignKey,
-# )
-# from sqlalchemy.orm import (relationship, Mapped, mapped_column)
+from typing import Optional
 
-# from modules.base.db.base import *
+from sqlalchemy import (
+    BigInteger,
+    Column,
+    Double,
+    Integer,
+    String,
+    DateTime,
+    Float,
+    Boolean,
+    ForeignKey,
+)
+from sqlalchemy.orm import (relationship, Mapped, mapped_column)
 
-# class User(BaseSchema_UUID_AuditLog_DeleteLog):
-#     """
-#     User schema for serialization and validation.
-#     This schema defines the structure of the user data.
-#     """
-#     __tablename__ = 'users'
-#     __table_args__ = {'extend_existing': True}
+from modules.base.db import (
+    BaseDB,
+    BaseSchemaAuditLogDeleteLog,
+    BaseSchemaUUIDAuditLogDeleteLog
+)
 
-#     # User information
-#     title = Column(String, nullable=True)
-#     first_name = Column(String(64), nullable=True)
-#     middle_name = Column(String(64), nullable=True)
-#     last_name = Column(String(64), nullable=True)
+# Constants for foreign key references
+ORGANIZATIONS_FK = 'organizations.id'
+USERS_FK = 'users.id'
+LOOKUPS_FK = 'lookups.id'
 
-#     # User details
-#     date_of_birth = Column(DateTime, nullable=True)
-#     gender = Column(String(10), nullable=True)
+class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
+    """
+    User schema for serialization and validation.
+    This schema defines the structure of the user data.
+    """
+    __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
 
-#     # Auth information
-#     username = Column(String(64), unique=True, index=True)
+    # Foreign Key to References
+    organization_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(ORGANIZATIONS_FK), index=True
+    )
+    type_id: Mapped[Optional[BigInteger]] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    )
 
-#     email = Column(String(64), unique=True, index=True)
+    # User information
+    title: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True
+    )
+    first_name: Mapped[str] = mapped_column(
+        String(64), nullable=False
+    )
+    middle_name: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
+    last_name: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
+    avatar: Mapped[Optional[str]] = mapped_column(
+        String(4000), nullable=True
+    )
 
-#     # Relationships
-#     details: Mapped["UserDetail"] = relationship(
-#         "UserDetail", back_populates="user", uselist=False, cascade="all, delete-orphan"
-#     )
+    date_of_birth: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime, nullable=True
+    )
+    gender_id: Mapped[Optional[BigInteger]] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    )
+    language_id: Mapped[Optional[BigInteger]] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    )
+    virtual_phone_number: Mapped[Optional[str]] = mapped_column(
+        String(20), nullable=True
+    )
 
-#     def __repr__(self):
-#         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
+    # Flags
+    is_pool: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    # Relationships
+    details: Mapped["UserDetailSchema"] = relationship(
+        "UserDetailSchema", back_populates="user",
+        uselist=False, cascade="all, delete-orphan"
+    )
 
-# class UserDetail(BaseSchema_UUID_AuditLog):
-#     """
-#     User details schema for serialization and validation.
-#     This schema defines the structure of the user details data.
-#     """
-#     __tablename__ = 'user_details'
-#     __table_args__ = {'extend_existing': True}
+    def __repr__(self):
+        return f"<UserSchema(id={self.id}, username={self.username}, email={self.email})>"
 
-#     # User information
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     address = Column(String(255), nullable=True)
-#     phone_number = Column(String(20), nullable=True)
-#     profile_picture = Column(String(255), nullable=True)
+class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
+    """
+    User details schema for serialization and validation.
+    This schema defines the structure of the user details data.
+    """
+    __tablename__ = 'user_details'
+    __table_args__ = {'extend_existing': True}
 
-#     # Relationships
-#     user: Mapped["User"] = relationship(
-#         "User", back_populates="details", uselist=False, cascade="all, delete-orphan"
-#     )
+    # Foreign Key to References
+    organization_id = Column(BigInteger, ForeignKey(ORGANIZATIONS_FK),
+        nullable=False, index=True
+    )
+    user_id = Column(BigInteger, ForeignKey(USERS_FK),
+        nullable=False, index=True
+    )
+    type_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
+        nullable=True, index=True
+    )
+    subtype_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
+        nullable=True, index=True
+    )
 
+    # Entity information
+    identifier = Column(String(255), nullable=True)
+    proxy = Column(String(255), nullable=True)
 
-#     def __repr__(self):
-#         return f"<UserDetails(user_id={self.user_id}, address={self.address})>"
+    # Flags
+    is_primary = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=False)
 
+    # Relationships
+    user: Mapped["UserSchema"] = relationship(
+        "UserSchema", back_populates="details",
+        uselist=False, cascade="all, delete-orphan"
+    )
 
-# class UserAddress(BaseSchema_UUID_AuditLog):
-#     """
-#     User address schema for serialization and validation.
-#     This schema defines the structure of the user address data.
-#     """
-#     __tablename__ = 'user_addresses'
-#     __table_args__ = {'extend_existing': True}
+    def __repr__(self):
+        return f"<UserDetailSchema(user_id={self.user_id}, identifier={self.identifier})>"
 
-#     # User information
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     address_line_1 = Column(String(255), nullable=True)
-#     address_line_2 = Column(String(255), nullable=True)
-#     city = Column(String(100), nullable=True)
-#     state = Column(String(100), nullable=True)
-#     country = Column(String(100), nullable=True)
-#     postal_code = Column(String(20), nullable=True)
+class UserAddress(BaseSchemaAuditLogDeleteLog, BaseDB):
+    """
+    User address schema for serialization and validation.
+    This schema defines the structure of the user address data.
+    """
+    __tablename__ = 'user_addresses'
+    __table_args__ = {'extend_existing': True}
 
-#     # Relationships
-#     user: Mapped["User"] = relationship(
-#         "User", back_populates="details", uselist=False, cascade="all, delete-orphan"
-#     )
+    # Foreign Key to References
+    organization_id = Column(BigInteger, ForeignKey(ORGANIZATIONS_FK),
+        nullable=False, index=True
+    )
+    user_id = Column(BigInteger, ForeignKey(USERS_FK),
+        nullable=False, index=True
+    )
+    type_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
+        nullable=True, index=True
+    )
 
-#     def __repr__(self):
-#         return f"<UserAddress(user_id={self.user_id}, address_line_1={self.address_line_1})>"
+    # User information
+    name = Column(String(255), nullable=True)
+    address_1 = Column(String(255), nullable=True)
+    address_2 = Column(String(255), nullable=True)
+    appartment_id = Column(Integer, nullable=True)
+    society_id = Column(Integer, nullable=True)
+    locality = Column(String(255), nullable=True)
+    city = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True)
+    country = Column(String(100), nullable=True)
+    zipcode = Column(String(20), nullable=True)
 
+    # Location information
+    google_place_id = Column(String(255), nullable=True)
+    latitude = Column(Float(4), nullable=True)
+    longitude = Column(Float(4), nullable=True)
 
-# class UserStatus(BaseSchema_UUID_AuditLog):
-#     """
-#     User status schema for serialization and validation.
-#     This schema defines the structure of the user status data.
-#     """
-#     __tablename__ = 'user_statuses'
-#     __table_args__ = {'extend_existing': True}
+    # Flags
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
-#     # User information
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     is_active = Column(Boolean, default=True)
-#     is_verified = Column(Boolean, default=False)
+    # Relationships
+    user: Mapped["UserSchema"] = relationship(
+        "UserSchema", back_populates="addresses",
+        uselist=False, cascade="all, delete-orphan"
+    )
 
-#     def __repr__(self):
-#         return f"<UserStatus(user_id={self.user_id}, is_active={self.is_active})>"
+    def __repr__(self):
+        return f"<UserAddress(user_id={self.user_id}, address_1={self.address_1})>"

@@ -17,7 +17,6 @@ dynamodb_resource = boto3.resource(
     aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY
 )
 
-
 # Get the service resource.
 class DynamoDBService:
     """ DynamoDBService class to handle DynamoDB operations.
@@ -36,7 +35,6 @@ class DynamoDBService:
         self.table_name = table_name
         self.dynamodb_table = self.dynamodb_connection.Table(self.table_name)
 
-
     def create_table(self, table_name, key_schema,
             attribute_definitions, provisioned_throughput
         ):
@@ -54,7 +52,6 @@ class DynamoDBService:
         except ClientError as e:
             raise AWSValueException(exception=e) from e
 
-
     def delete_table(self, table_name):
         """
         Delete a DynamoDB table.
@@ -64,7 +61,6 @@ class DynamoDBService:
             return response
         except ClientError as e:
             raise AWSValueException(exception=e) from e
-
 
     def set_data(self, data: dict) -> dict:
         """  Put an item in a DynamoDB table.
@@ -83,7 +79,6 @@ class DynamoDBService:
             )
         except ClientError as e:
             raise AWSValueException(exception=e) from e
-
 
     def get_data(self, value: str,
             key:str = config.CLAIM_TABLE_KEY
@@ -105,7 +100,6 @@ class DynamoDBService:
         except ClientError as e:
             raise AWSValueException(exception=e) from e
 
-
     def query_data(self, query: dict[str, str]) -> List[str] | None:
         """
         Get an item from a DynamoDB table.
@@ -126,7 +120,6 @@ class DynamoDBService:
         except ClientError as e:
             raise AWSValueException(exception=e) from e
 
-
     def delete_data(self, value: str, key: str = config.CLAIM_TABLE_KEY):
         """
         Delete an item from a DynamoDB table.
@@ -139,7 +132,6 @@ class DynamoDBService:
         
         except ClientError as e:
             raise AWSValueException(exception=e) from e
-
 
     # Code referenced from
     # Link: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/programming-with-python.html#programming-with-python-documentation

@@ -19,7 +19,6 @@ from modules.base.services.aws.dynamodb import DynamoDBService
 from modules.base.helpers.token import TokenHelper
 from .token_service import TokenService
 
-
 class ClaimService:
     """ ClaimService class to handle claims related operations.
 

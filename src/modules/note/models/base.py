@@ -12,12 +12,10 @@ class Note(AppBaseModelWithHashAndAuditLog):
     """
     Note model for the application.
     """
-    entity_type_id: int = Field(
-            default="0", description="Type of the entity.",
+    entity_type_id: int = Field(default=0, description="Type of the entity.",
             nullable=False
         )
-    reference_id: int = Field(
-            default="0", description="ID of the reference entity.",
+    reference_id: int = Field(default=0, description="ID of the reference entity.",
             nullable=False
         )
     title: str = Field(default=None, description="Title of the note.",

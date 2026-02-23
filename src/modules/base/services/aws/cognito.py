@@ -15,7 +15,6 @@ client = boto3.client(
     aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY
 )
 
-
 class CognitoService():
     """
     Memcached cache backend implementation using AWS ElastiCache.

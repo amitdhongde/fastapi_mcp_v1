@@ -8,9 +8,10 @@ from pydantic import (
 )
 
 # Import the project models
-from modules.base.models.base import AppBaseModelWithHashAndAuditLog
+from modules.base.models import (
+    AppBaseModelWithHashAndAuditLog
+)
 from modules.core.models.organization.organization import Organization
-
 
 class User(AppBaseModelWithHashAndAuditLog):
     """
@@ -21,10 +22,23 @@ class User(AppBaseModelWithHashAndAuditLog):
             exclude=True, max_length=64, examples=["John"]
         )
     middle_name: str = Field(default=None, description="Middle Name",
-            exclude=True
+            exclude=True, max_length=64
         )
     last_name: str = Field(default=None, description="Last Name",
             exclude=True, max_length=64, examples=["Doe"]
+        )
+    avatar: str = Field(default=None, description="Avatar URL",
+            exclude=True, max_length=4000
+        )
+    
+    date_of_birth: date = Field(default=None,
+            description="Date of Birth", exclude=True
+        )
+    gender_id: int = Field(default=0, description="Gender ID",
+            exclude=True
+        )
+    language_id: int = Field(default=0, description="Language ID",
+            exclude=True
         )
 
     # Foreign Key to References
@@ -32,10 +46,7 @@ class User(AppBaseModelWithHashAndAuditLog):
             description="Organization"
         )
 
-    date_of_birth: date = Field(default=None,
-            description="Date of Birth",
-            exclude=True
-        )
+
 
     username: EmailStr | str = Field(...,
             description="Username", max_length=64, min_length=8, 

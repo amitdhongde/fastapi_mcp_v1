@@ -17,7 +17,6 @@ from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
-
 # snippet-start:[python.example_code.sns.SnsWrapper]
 class SnsWrapper:
     """Encapsulates Amazon SNS topic and subscription functions."""
