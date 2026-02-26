@@ -1,5 +1,9 @@
-from .auth_schema import NoteSchema
+from .auth_schema import (
+    AuthSchema,
+    RegistrationSchema
+)
 
 __all__ = [
-    "NoteSchema"
+    "AuthSchema",
+    "RegistrationSchema"
 ]

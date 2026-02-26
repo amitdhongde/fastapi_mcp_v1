@@ -1,6 +1,7 @@
 """ Import the required modules """
+from __future__ import annotations
 import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import (
     DateTime,
     Boolean,
@@ -9,7 +10,7 @@ from sqlalchemy import (
     BigInteger,
     ForeignKey
 )
-from sqlalchemy.orm import (Mapped, mapped_column)
+from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
 # Import Base Schema classes & models
 from modules.base.db import (
@@ -18,10 +19,31 @@ from modules.base.db import (
     BaseSchemaUUIDAuditLogDeleteLog
 )
 
+
 # Constants for foreign key references
 ORGANIZATIONS_FK = 'organizations.id'
 USERS_FK = 'users.id'
 LOOKUPS_FK = 'lookups.id'
+
+if TYPE_CHECKING:
+    from modules.core.schemas import (
+        LookupSchema,
+        OrganizationSchema
+    )
+    from modules.user.schemas import UserSchema
+
+def relationship_back_populates_user() -> UserSchema:
+    from modules.user.schemas import UserSchema
+    return UserSchema
+
+def relationship_back_populates_organization() -> OrganizationSchema:
+    from modules.core.schemas import OrganizationSchema
+    return OrganizationSchema
+
+def relationship_back_populates_lookup() -> LookupSchema:
+    from modules.core.schemas import LookupSchema
+    return LookupSchema
+    
 
 class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
@@ -43,22 +65,23 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     type_id: Mapped[int] = mapped_column(ForeignKey(LOOKUPS_FK), index=True)
 
     # Entity fields
-    sub: Mapped[str] = mapped_column(String(255), nullable=False,
-        unique=True, index=True
-    )
+    sub: Mapped[Optional[str]] = mapped_column(String(255), nullable=True,
+            unique=True, index=True
+        )
     username: Mapped[str] = mapped_column(String(64), nullable=False,
-        unique=True, index=True
-    )
+            unique=True, index=True
+        )
+    password: Mapped[str] = mapped_column(String(255), nullable=True)
     remember_token: Mapped[bool] = mapped_column(Boolean, default=False)
     remember_expire_at: Mapped[Optional[datetime.datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
-    )
+            DateTime(timezone=True), nullable=True,
+        )
     last_login_at: Mapped[Optional[datetime.datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
-    )
+            DateTime(timezone=True), nullable=True,
+        )
     last_login_ip: Mapped[Optional[str]] = mapped_column(
-        String(45), nullable=True
-    )
+            String(45), nullable=True
+        )
 
     # Flags
     is_agent: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -67,14 +90,29 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     max_failed_attempts: Mapped[int] = mapped_column(Integer, default=5)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     verification_token: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True
-    )
+            String(255), nullable=True
+        )
     verification_token_expires_at: Mapped[Optional[datetime.datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
-    )
+            DateTime(timezone=True), nullable=True,
+        )
     verified_at: Mapped[Optional[datetime.datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True,
-    )
+            DateTime(timezone=True), nullable=True,
+        )
+
+    # Relationships
+    # organization: Mapped["OrganizationSchema"] = relationship(
+    #         relationship_back_populates_organization,
+    #         foreign_keys=[organization_id],
+    #         lazy="select"
+    #     )
+    # type: Mapped["LookupSchema"] = relationship(
+    #         relationship_back_populates_lookup,
+    #         foreign_keys=[type_id]
+    #     )
+    # user: Mapped["UserSchema"] = relationship(
+    #         relationship_back_populates_user,
+    #         foreign_keys=[user_id]
+    #     )
 
 class RegistrationSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """

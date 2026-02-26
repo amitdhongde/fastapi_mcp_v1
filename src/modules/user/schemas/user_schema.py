@@ -1,9 +1,9 @@
-from typing import Optional
+from __future__ import annotations
+from typing import TYPE_CHECKING, List, Optional
 
+# Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
     BigInteger,
-    Column,
-    Double,
     Integer,
     String,
     DateTime,
@@ -24,20 +24,30 @@ ORGANIZATIONS_FK = 'organizations.id'
 USERS_FK = 'users.id'
 LOOKUPS_FK = 'lookups.id'
 
+if TYPE_CHECKING:
+    from modules.core.schemas import (
+        LookupSchema,
+        OrganizationSchema
+    )
+    from modules.auth.schemas import AuthSchema
+
+def relationship_back_populates_auth() -> AuthSchema:
+    from modules.auth.schemas import AuthSchema
+    return AuthSchema
+
 class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
     User schema for serialization and validation.
     This schema defines the structure of the user data.
     """
     __tablename__ = 'users'
-    __table_args__ = {'extend_existing': True}
 
     # Foreign Key to References
     organization_id: Mapped[BigInteger] = mapped_column(
         ForeignKey(ORGANIZATIONS_FK), index=True
     )
-    type_id: Mapped[Optional[BigInteger]] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    type_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=False, index=True
     )
 
     # User information
@@ -74,13 +84,33 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     is_pool: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    details: Mapped["UserDetailSchema"] = relationship(
-        "UserDetailSchema", back_populates="user",
-        uselist=False, cascade="all, delete-orphan"
+    details: Mapped[List["UserDetailSchema"]] = relationship(
+        "UserDetailSchema",
+        back_populates="user",
+        lazy="select",
     )
+    addresses: Mapped[List["UserAddressSchema"]] = relationship(
+        "UserAddressSchema",
+        back_populates="user",
+        lazy="select"
+    )
+    # organization: Mapped["OrganizationSchema"] = relationship(
+    #     "OrganizationSchema",
+    #     lazy="select"
+    # )
+    # type: Mapped[Optional["LookupSchema"]] = relationship(
+    #     foreign_keys=[type_id]
+    # )
+    # gender: Mapped[Optional["LookupSchema"]] = relationship(
+        
+    # )
+    # authentications: Mapped[List["AuthSchema"]] = relationship(
+    #     relationship_back_populates_auth,
+    #     back_populates="user"
+    # )
 
     def __repr__(self):
-        return f"<UserSchema(id={self.id}, username={self.username}, email={self.email})>"
+        return f"<UserSchema(id={self.id}, first_name={self.first_name}, last_name={self.last_name})>"
 
 class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """
@@ -88,29 +118,32 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     This schema defines the structure of the user details data.
     """
     __tablename__ = 'user_details'
-    __table_args__ = {'extend_existing': True}
 
     # Foreign Key to References
-    organization_id = Column(BigInteger, ForeignKey(ORGANIZATIONS_FK),
-        nullable=False, index=True
+    organization_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(ORGANIZATIONS_FK), index=True
     )
-    user_id = Column(BigInteger, ForeignKey(USERS_FK),
-        nullable=False, index=True
+    user_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(USERS_FK), index=True
     )
-    type_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
-        nullable=True, index=True
+    type_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=False, index=True
     )
-    subtype_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
-        nullable=True, index=True
+    subtype_id: Mapped[Optional[BigInteger]] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=True, index=True
     )
 
     # Entity information
-    identifier = Column(String(255), nullable=True)
-    proxy = Column(String(255), nullable=True)
+    identifier: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    proxy: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
 
     # Flags
-    is_primary = Column(Boolean, default=False)
-    is_verified = Column(Boolean, default=False)
+    is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
     user: Mapped["UserSchema"] = relationship(
@@ -121,41 +154,66 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     def __repr__(self):
         return f"<UserDetailSchema(user_id={self.user_id}, identifier={self.identifier})>"
 
-class UserAddress(BaseSchemaAuditLogDeleteLog, BaseDB):
+class UserAddressSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """
     User address schema for serialization and validation.
     This schema defines the structure of the user address data.
     """
     __tablename__ = 'user_addresses'
-    __table_args__ = {'extend_existing': True}
 
     # Foreign Key to References
-    organization_id = Column(BigInteger, ForeignKey(ORGANIZATIONS_FK),
-        nullable=False, index=True
+    organization_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(ORGANIZATIONS_FK), index=True
     )
-    user_id = Column(BigInteger, ForeignKey(USERS_FK),
-        nullable=False, index=True
+    user_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(USERS_FK), index=True
     )
-    type_id = Column(BigInteger, ForeignKey(LOOKUPS_FK),
-        nullable=True, index=True
+    type_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=False, index=True
     )
 
     # User information
-    name = Column(String(255), nullable=True)
-    address_1 = Column(String(255), nullable=True)
-    address_2 = Column(String(255), nullable=True)
-    appartment_id = Column(Integer, nullable=True)
-    society_id = Column(Integer, nullable=True)
-    locality = Column(String(255), nullable=True)
-    city = Column(String(100), nullable=True)
-    state = Column(String(100), nullable=True)
-    country = Column(String(100), nullable=True)
-    zipcode = Column(String(20), nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    address_1: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    address_2: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    appartment_id: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True
+    )
+    society_id: Mapped[Optional[int]] = mapped_column(
+        Integer, nullable=True
+    )
+    locality: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    city: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True
+    )
+    state: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True
+    )
+    country: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True
+    )
+    zipcode: Mapped[Optional[str]] = mapped_column(
+        String(20), nullable=True
+    )
 
     # Location information
-    google_place_id = Column(String(255), nullable=True)
-    latitude = Column(Float(4), nullable=True)
-    longitude = Column(Float(4), nullable=True)
+    google_place_id: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    latitude: Mapped[Optional[float]] = mapped_column(
+        Float(4), nullable=True
+    )
+    longitude: Mapped[Optional[float]] = mapped_column(
+        Float(4), nullable=True
+    )
 
     # Flags
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -168,4 +226,4 @@ class UserAddress(BaseSchemaAuditLogDeleteLog, BaseDB):
     )
 
     def __repr__(self):
-        return f"<UserAddress(user_id={self.user_id}, address_1={self.address_1})>"
+        return f"<UserAddressSchema(user_id={self.user_id}, address_1={self.address_1})>"

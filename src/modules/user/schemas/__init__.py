@@ -1,5 +1,11 @@
-from .user_schema import UserSchema
+from .user_schema import (
+    UserSchema,
+    UserDetailSchema,
+    UserAddressSchema
+)
 
 __all__ = [
-    "UserSchema"
+    "UserSchema",
+    "UserDetailSchema",
+    "UserAddressSchema"
 ]

@@ -18,7 +18,7 @@ from modules.base.db.base import (
 from modules.core.enums.lookup import LookupMaster
 
 
-class LookUpSchema(BaseSchemaAuditLog, BaseDB):
+class LookupSchema(BaseSchemaAuditLog, BaseDB):
     """
     LookUp model for the application.
     This model defines the structure of the lookup data.

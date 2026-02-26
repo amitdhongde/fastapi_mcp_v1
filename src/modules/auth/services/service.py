@@ -4,14 +4,13 @@ from typing import List
 from pydantic import TypeAdapter
 
 # Include the project models
-from ..models.base import Auth
-from ..models.request import *
-from modules.user.models.user import User
-from modules.base.models.auth.claim import AuthClaim
+from ..models import Auth
+from modules.user.models import User
+from modules.base.models.auth import AuthClaim
 
 # include the project services
 from modules.base.services.base import BaseService
-from modules.base.services.auth.claim_service import ClaimService
+from modules.base.services.auth import ClaimService
 
 # Include the module repositories
 from ..repositories.repository import AuthRepository
@@ -20,7 +19,10 @@ from ..repositories.repository import AuthRepository
 from ..events import LoginEvent
 
 # Include the module exceptions
-from modules.base.exceptions.base import *
+from modules.base.exceptions import (
+    AuthenticationException,
+    InvalidTokenException
+)
 
 class AuthService:
     """ AuthService class to handle authentication related operations. """
@@ -29,7 +31,7 @@ class AuthService:
         self.claim_service = ClaimService()
 
 
-    async def authenticate(self, credentials: LoginRequest, ip_address: str) -> AuthClaim:
+    async def authenticate(self, payload: dict, ip_address: str,) -> AuthClaim:
         """ Authenticare the user
 
         Authenticate the user with the given credentials and IP address.
@@ -41,7 +43,7 @@ class AuthService:
         try :
             # Validate the credentials
             authenticated_user: User = await self.repository.authenticate_user(
-                credentials, ip_address
+                payload, ip_address
             )
             if not authenticated_user:
                 raise AuthenticationException()
@@ -102,7 +104,7 @@ class AuthService:
             raise e
 
 
-    async def register(self, payload: RegisterRequest, ip_address: str) -> dict:
+    async def register(self, payload: dict, ip_address: str) -> dict:
         """ Register the user
 
         Register the user with the given payload and IP address.
@@ -127,11 +129,7 @@ class AuthService:
             raise e
 
 
-    async def forgot_password(
-            self,
-            payload: ForgotPasswordRequest,
-            ip_address: str
-        ) -> dict:
+    async def forgot_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a forgot password request
 
         Send a forgot password request with the given payload.
@@ -148,11 +146,7 @@ class AuthService:
             raise e
 
 
-    async def change_password(
-            self,
-            payload: ChangePasswordRequest,
-            ip_address: str
-        ) -> dict:
+    async def change_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a chnage password request
 
         Send a change password request with the given payload.
@@ -169,11 +163,7 @@ class AuthService:
             raise e
 
 
-    async def reset_password(
-            self,
-            payload: ChangePasswordRequest,
-            ip_address: str
-        ) -> dict:
+    async def reset_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a chnage password request
 
         Send a change password request with the given payload.

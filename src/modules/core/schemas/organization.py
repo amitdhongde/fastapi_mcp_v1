@@ -1,4 +1,5 @@
 """ Import the required modules """
+from __future__ import annotations
 import datetime
 from typing import List, Optional, TYPE_CHECKING
 
@@ -13,16 +14,17 @@ from sqlalchemy import (
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
 # Import Base Schema classes & models
-from modules.base.db.base import (
+from modules.base.db import (
     BaseDB,
     BaseSchemaUUIDAuditLogDeleteLog
 )
 
 if TYPE_CHECKING:
     from modules.core.schemas import (
-        LookUpSchema,
+        LookupSchema,
         OrganizationConfigurationSchema
     )
+    from modules.user.schemas import UserSchema
 
 
 class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
@@ -94,9 +96,12 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     )
 
     # Relationships
-    type: Mapped["LookUpSchema"] = relationship(
+    type: Mapped["LookupSchema"] = relationship(
         single_parent=True, uselist=False
     )
     configurations: Mapped[List["OrganizationConfigurationSchema"]] = relationship(
-        back_populates="organization"
+        back_populates="organization", lazy="select"
     )
+    # users: Mapped[List["UserSchema"]] = relationship(
+    #     back_populates="organization", lazy="select"
+    # )

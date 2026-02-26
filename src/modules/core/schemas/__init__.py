@@ -1,5 +1,5 @@
 """ Import the required modules """
-from .lookup import LookUpSchema
+from .lookup import LookupSchema
 from .configuration import ConfigurationSchema
 from .organization import OrganizationSchema
 from .organization_configuration import (
@@ -7,7 +7,7 @@ from .organization_configuration import (
 )
 
 __all__ = [
-    "LookUpSchema",
+    "LookupSchema",
     "ConfigurationSchema",
     "OrganizationSchema",
     "OrganizationConfigurationSchema",

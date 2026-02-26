@@ -3,10 +3,11 @@ import base64
 import hashlib
 import hmac
 import boto3
+import logging
 from botocore.exceptions import ClientError
 from modules.base.config import config
 
-logger = config.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 client = boto3.client(
     "cognito-idp", 

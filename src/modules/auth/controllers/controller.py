@@ -39,8 +39,12 @@ class AuthController(BaseController):
             # Get the ip address from the request
             ip_address = request.client.host
 
+            # Convert the credentials to dict
+            payload = credentials.model_dump()
+
+            # Call the service to authenticate the user
             response: BaseModel = await self.service.authenticate(
-                credentials, ip_address
+                payload, ip_address
             )
 
             # Send data from the service

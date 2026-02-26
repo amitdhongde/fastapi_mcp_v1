@@ -2,9 +2,9 @@ from typing import Annotated, Self
 
 from datetime import date
 from pydantic import (
-    ConfigDict, EmailStr, 
-    Field, TypeAdapter, 
-    computed_field, model_validator
+    ConfigDict,
+    Field,
+    computed_field
 )
 
 # Import the project models
@@ -43,22 +43,12 @@ class User(AppBaseModelWithHashAndAuditLog):
 
     # Foreign Key to References
     organization: Organization = Field(default=None,
-            description="Organization"
+            description="Organization",
+            exclude=True
         )
-
-
-
-    username: EmailStr | str = Field(...,
-            description="Username", max_length=64, min_length=8, 
-            examples=["john@someone,com"]
-        )
-
-    is_verified: int = Field(default=0, description="Is Verified", exclude=True)
-
 
     def __str__(self):
         return f'User: {str(self.id)} - {self.full_name}'
-
 
     @computed_field(description="Full name")
     @property
@@ -84,28 +74,6 @@ class User(AppBaseModelWithHashAndAuditLog):
             return_value = "Unknown"
 
         return return_value.strip()
-
-
-    @model_validator(mode='after')
-    def check_username(self) -> Self:
-        """
-        Validate the username field.
-        The username can be an email or a phone number.
-        If the username is an email, it should be a valid email address.
-        If the username is a phone number, it should be a valid phone number.
-        """
-        # Check the username is for empty, email and phone number
-        if '@' in self.username: # Email Validation
-            ta_email = TypeAdapter(EmailStr)
-            if not ta_email.validate_python(self.username):
-                raise ValueError('Invalid email')
-        elif str(self.username).isdigit(): # Phone Number Validation
-            if len(self.username) < 10 :
-                raise ValueError('Invalid phone number')
-        else:
-            raise ValueError('Invalid username')
-        return self
-
 
     model_config = ConfigDict(
         extra='allow',

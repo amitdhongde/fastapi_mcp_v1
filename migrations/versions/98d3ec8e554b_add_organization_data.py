@@ -14,7 +14,6 @@ import sqlalchemy as sa
 
 from modules.base.config import config
 
-
 # revision identifiers, used by Alembic.
 revision: str = '98d3ec8e554b'
 down_revision: Union[str, None] = '8547ccfb65df'
@@ -45,7 +44,7 @@ def upgrade() -> None:
     )
 
     # Geenrate initial organization data
-    organization_data: List[dict[str, str]] = list()
+    organization_data: List[dict[str, str]] = []
     organization_data.append({
         'type_id': 1,
         'display_name': 'EllaiSys',
@@ -72,7 +71,9 @@ def upgrade() -> None:
         'email': 'ellaisys+demo@gmail.com',
         'payment_provider': 'stripe'
     })
-    if config.ENVIRONMENT != 'development':
+
+    # Generate additional random organization data for testing
+    if config.ENVIRONMENT != 'production':
         for i in range(100):
             organization_data.append({
                 'type_id': 1,

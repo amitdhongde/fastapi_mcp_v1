@@ -1,30 +1,64 @@
-#from modules.core.repository.base import BaseRepository
-from fastapi.responses import JSONResponse
+""" Import the required modules """
+import logging
+from typing import Any, Set
+from xml.parsers.expat import model
+from pydantic import TypeAdapter, BaseModel
+from modules.base.repository import BaseRepository
 
-from modules.auth.models.base import Auth
-from modules.user.models.user import User
-from modules.core.models.organization.organization import Organization
+# Import the schema and model classes
+from modules.auth.schemas import AuthSchema
 
-from ..models.request import LoginRequest
+from modules.auth.models import Auth
+from modules.user.models import User
+from modules.core.models.organization import Organization
 
-class AuthRepository():
-    def __init__(self):
-        #super().__init__(Auth)
-        pass
+logger = logging.getLogger(__name__)
 
-    async def authenticate_user(
-            self,
-            credentials: LoginRequest,
+class AuthRepository(BaseRepository[AuthSchema]):
+    """
+    This class to handle object related database operations.
+
+    This class provides methods to perform CRUD operations on the database.
+    It uses SQLAlchemy to interact with the database.
+    """
+    def __init__(self, model = AuthSchema):
+        self.model = model
+        super().__init__(model)
+
+    async def authenticate_user(self, payload: dict,
             ip_address: str|None = None) -> User:
-        return User(
-            id=1,
-            username=credentials.username,
-            organization=Organization(
-                id=1,
-                display_name="My Organization",
-                legal_name="My Organization Inc"
-            )
-        )
+        """ Authenticate the user with the given credentials and IP address."""
+        try:
+            # build the credentials query
+            credentials: dict[str, Any] = {
+                "username": payload.get("username"),
+                "password": payload.get("code"),
+                "is_active": True
+            }
+
+            # Get the user from the database
+            responseList: list[AuthSchema] = await self.get_by_fields(credentials)
+            authModel: Auth = None
+        
+            if not responseList:
+                return None
+            else:
+                authenticated_user: AuthSchema = responseList[0]
+                
+                # Validate the response
+                authModel: Auth = TypeAdapter(Auth).validate_python(authenticated_user)
+                # user: User = authModel.user
+                # logger.info(f'Authenticated user: {user}')
+
+            return authModel
+            #     organization=Organization(
+            #         id=1,
+            #         display_name="My Organization",
+            #         legal_name="My Organization Inc"
+            #     )
+            # )
+        except Exception as e:
+            raise e
 
 
     async def show(self, hash: str):

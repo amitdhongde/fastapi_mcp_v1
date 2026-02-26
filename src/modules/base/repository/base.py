@@ -1,4 +1,5 @@
 """ Import the required modules """
+import logging
 from functools import reduce
 from typing import Any, Generic, Type, TypeVar
 from uuid import UUID
@@ -16,6 +17,8 @@ from modules.base.exceptions import (
     EntityNotSavedException,
 )
 from modules.base.db import session
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseDB)
 
@@ -99,6 +102,31 @@ class BaseRepository(Generic[T]):
                 return await self._all_unique(query)
             if unique:
                 return await self._one(query)
+
+            return await self._all(query)
+        except EntityNotFoundException as e:
+            raise e
+
+    async def get_by_fields(
+        self,
+        fields: dict[str, Any],
+        join_: set[str] | None = None) -> list[T]:
+        """
+        Returns a list of model instances matching the fields.
+
+        :param fields: The fields to match.
+        :param join_: The joins to make.
+        :return: A list of model instances.
+        """
+        try:
+            query = self._query(join_)
+            for field, value in fields.items():
+                query = await self._get_by(query, field, value)
+
+            if join_ is not None:
+                return await self._all_unique(query)
+
+            logger.info(f"Query: {query}")
 
             return await self._all(query)
         except EntityNotFoundException as e:
@@ -425,4 +453,4 @@ class BaseRepository(Generic[T]):
         :param join_: The join to make.
         :return: The query with the given join.
         """
-        return getattr(self, "_join_" + join_)(query)
+        return getattr(self, join_)(query)

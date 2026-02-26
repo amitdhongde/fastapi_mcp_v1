@@ -8,7 +8,6 @@ from pydantic import (
 # Import configuration file
 from modules.base.config import config
 
-
 class OrganizationBaseModel(BaseModel):
     """
     Base model for organization models.
@@ -37,7 +36,6 @@ class OrganizationBaseModel(BaseModel):
         else:
             raise ValueError('Invalid username')
         return self
-
 
 # Define the Create model
 class OrganizationCreateRequest(OrganizationBaseModel):
