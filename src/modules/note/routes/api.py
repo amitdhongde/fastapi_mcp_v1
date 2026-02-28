@@ -1,6 +1,11 @@
 """ Import the required modules """
-from typing import Any
+from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
+
+# Import middlewares and dependencies
+from modules.base.fastapi.dependencies import (
+    common_parameters
+)
 
 # Import middlewares and dependencies
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
@@ -14,22 +19,36 @@ from ..models import (
     NoteUpdateRequest
 )
 
+# Include the project exceptions
+from modules.base.exceptions import (
+    InvalidTokenException
+)
+
 router = APIRouter(prefix="/note", tags=["Notes"])
 
 @router.get("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[
+            Depends(AuthGaurd),
+            Depends(common_parameters)
+        ],
         name="get_notes",
         operation_id="get_note_list"
     )
 async def index(
+        commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get all lookup data.
+    Get all note data.
     """
-    current_user = auth.current_user()
-    return await Controller().index(request, current_user)
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+    if not access_token:
+        raise InvalidTokenException()
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
+    return await Controller().index(commons, request, current_user)
 
 @router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
@@ -44,7 +63,12 @@ async def show(
     """
     Get the note data with the given uid.
     """
-    current_user = auth.current_user()
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+    if not access_token:
+        raise
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",

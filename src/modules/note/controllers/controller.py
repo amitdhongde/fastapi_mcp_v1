@@ -51,7 +51,6 @@ class NoteController(BaseController):
         except Exception as e:
             raise e
 
-
     async def update(self, hash: str, payload: NoteUpdateRequest,
                      request: Request, current_user) -> Note:
         return await self.service.update(hash, payload)

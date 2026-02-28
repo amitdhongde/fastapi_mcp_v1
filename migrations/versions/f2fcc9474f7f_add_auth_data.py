@@ -36,7 +36,7 @@ def upgrade() -> None:
         "user_id": 1,
         "type_id": 1,
         "sub": fake.uuid4(),
-        "username": fake.user_name(),
+        "username": 'admin@domain.com',
         "password": fake.password(length=12),
         "remember_token": False,
         "is_agent": False,

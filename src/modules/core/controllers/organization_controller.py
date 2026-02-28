@@ -21,7 +21,6 @@ class OrganizationController(BaseController):
         super().__init__()
         self.service = OrganizationService()
 
-
     async def index(
             self,
             commons: dict,
@@ -47,7 +46,6 @@ class OrganizationController(BaseController):
         except Exception as e:
             raise e
 
-
     async def show(
             self,
             uid: str,
@@ -71,7 +69,6 @@ class OrganizationController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def create(
             self,

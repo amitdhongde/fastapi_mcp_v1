@@ -70,11 +70,11 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     date_of_birth: Mapped[Optional[DateTime]] = mapped_column(
         DateTime, nullable=True
     )
-    gender_id: Mapped[Optional[BigInteger]] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    gender_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=False
     )
-    language_id: Mapped[Optional[BigInteger]] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+    language_id: Mapped[BigInteger] = mapped_column(
+        ForeignKey(LOOKUPS_FK), nullable=False
     )
     virtual_phone_number: Mapped[Optional[str]] = mapped_column(
         String(20), nullable=True
@@ -84,16 +84,14 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     is_pool: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    details: Mapped[List["UserDetailSchema"]] = relationship(
-        "UserDetailSchema",
-        back_populates="user",
-        lazy="select",
-    )
-    addresses: Mapped[List["UserAddressSchema"]] = relationship(
-        "UserAddressSchema",
-        back_populates="user",
-        lazy="select"
-    )
+    # details: Mapped[List["UserDetailSchema"]] = relationship(
+    #     "UserDetailSchema",
+    #     back_populates="user"
+    # )
+    # addresses: Mapped[List["UserAddressSchema"]] = relationship(
+    #     "UserAddressSchema",
+    #     back_populates="user"
+    # )
     # organization: Mapped["OrganizationSchema"] = relationship(
     #     "OrganizationSchema",
     #     lazy="select"
@@ -110,7 +108,7 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     # )
 
     def __repr__(self):
-        return f"<UserSchema(id={self.id}, first_name={self.first_name}, last_name={self.last_name})>"
+        return f"<UserSchema(id={self.id}, first_name={self.first_name})>"
 
 class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """
@@ -146,10 +144,10 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    user: Mapped["UserSchema"] = relationship(
-        "UserSchema", back_populates="details",
-        uselist=False, cascade="all, delete-orphan"
-    )
+    # user: Mapped["UserSchema"] = relationship(
+    #     "UserSchema", back_populates="details",
+    #     uselist=False, cascade="all, delete-orphan"
+    # )
 
     def __repr__(self):
         return f"<UserDetailSchema(user_id={self.user_id}, identifier={self.identifier})>"
@@ -220,10 +218,10 @@ class UserAddressSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    user: Mapped["UserSchema"] = relationship(
-        "UserSchema", back_populates="addresses",
-        uselist=False, cascade="all, delete-orphan"
-    )
+    # user: Mapped["UserSchema"] = relationship(
+    #     "UserSchema", back_populates="addresses",
+    #     uselist=False, cascade="all, delete-orphan"
+    # )
 
     def __repr__(self):
         return f"<UserAddressSchema(user_id={self.user_id}, address_1={self.address_1})>"

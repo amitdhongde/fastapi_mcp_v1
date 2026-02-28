@@ -100,17 +100,19 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
         )
 
     # Relationships
-    # organization: Mapped["OrganizationSchema"] = relationship(
-    #         relationship_back_populates_organization,
-    #         foreign_keys=[organization_id],
-    #         lazy="select"
-    #     )
-    # type: Mapped["LookupSchema"] = relationship(
-    #         relationship_back_populates_lookup,
-    #         foreign_keys=[type_id]
-    #     )
+    organization: Mapped["OrganizationSchema"] = relationship(
+            relationship_back_populates_organization,
+            lazy="joined",
+            foreign_keys=[organization_id]
+        )
+    type: Mapped["LookupSchema"] = relationship(
+            relationship_back_populates_lookup,
+            lazy="joined",
+            foreign_keys=[type_id]
+        )
     # user: Mapped["UserSchema"] = relationship(
     #         relationship_back_populates_user,
+    #         lazy="joined",
     #         foreign_keys=[user_id]
     #     )
 

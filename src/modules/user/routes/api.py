@@ -1,3 +1,32 @@
+# from fastapi import APIRouter, Depends
+# from modules.base.exceptions.base import InvalidTokenException
+# from modules.user.controllers.controller import UserController
+
+# # Import middlewares
+# from modules.base.fastapi.dependencies.authentication import AuthGaurd
+
+# router = APIRouter(prefix="/users", tags=["Users"])
+
+# @router.get("/", dependencies=[Depends(AuthGaurd)])
+# async def index():
+#     return await UserController().index()
+
+# @router.get("/{hash}")
+# async def show(hash: str):
+#     return await UserController().show(hash)
+
+# @router.post("/")
+# async def create():
+#     return await UserController().create()
+
+# @router.put("/{hash}")
+# async def update(hash: str):
+#     return await UserController().update(hash)
+
+# @router.delete("/{hash}", dependencies=[Depends(AuthGaurd)])
+# async def delete(hash: str):
+#     return await UserController().delete(hash)
+
 """ Import the required modules """
 from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
@@ -6,34 +35,33 @@ from fastapi import APIRouter, Depends, Request
 from modules.base.fastapi.dependencies import (
     common_parameters
 )
+
+# Import middlewares and dependencies
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from modules.core.controllers import (
-    OrganizationController as Controller
-)
+from ..controllers import UserController as Controller
 
 # Include the project models
-from ..models.organization.request import (
-    OrganizationCreateRequest,
-    OrganizationUpdateRequest
+from ..models import (
+    UserCreateRequest,
+    UserUpdateRequest
 )
 
-# Exception classes
+# Include the project exceptions
 from modules.base.exceptions import (
     InvalidTokenException
 )
 
-# Create the module router
-router = APIRouter(prefix="/organization", tags=["Organization"])
+router = APIRouter(prefix="/user", tags=["Users"])
 
 @router.get("/",
         dependencies=[
             Depends(AuthGaurd),
             Depends(common_parameters)
         ],
-        name="get_organizations",
-        operation_id="get_organization_list"
+        name="get_users",
+        operation_id="get_user_list"
     )
 async def index(
         commons: Annotated[dict, Depends(common_parameters)],
@@ -41,7 +69,7 @@ async def index(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get all organizations.
+    Get all lookup data.
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
@@ -53,7 +81,8 @@ async def index(
 
 @router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="get_organization"
+        name="get_user",
+        operation_id="get_user"
     )
 async def show(
         uid: str,
@@ -61,7 +90,7 @@ async def show(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get the organization with the given uid.
+    Get the user data with the given uid.
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
@@ -73,17 +102,24 @@ async def show(
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
-        name="create_organization"
+        name="create_user",
+        operation_id="create_user"
     )
 async def create(
-        payload: OrganizationCreateRequest,
+        payload: UserCreateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Create a new organization with the given payload.
+    Create a new user with the given payload.
     """
-    current_user = auth.current_user()
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+    if not access_token:
+        raise InvalidTokenException()
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
+
     return await Controller().create(
             payload, request,
             current_user
@@ -91,16 +127,17 @@ async def create(
 
 @router.put("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="update_organization"
+        name="update_user",
+        operation_id="update_user"
     )
 async def update(
         uid: str,
-        payload: OrganizationUpdateRequest,
+        payload: UserUpdateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Update the organization with the given uid and payload.
+    Update the user with the given uid and payload.
     """
     current_user = auth.current_user()
     return await Controller().update(
@@ -110,7 +147,8 @@ async def update(
 
 @router.delete("/{uid}",
         dependencies=[Depends(AuthGaurd)],
-        name="delete_organization"
+        name="delete_user",
+        operation_id="delete_user"
     )
 async def delete(
         uid: str,
@@ -118,7 +156,7 @@ async def delete(
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Delete the organization with the given uid and payload.
+    Delete the user with the given uid.
     """
     current_user = auth.current_user()
     return await Controller().delete(

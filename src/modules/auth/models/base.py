@@ -11,6 +11,7 @@ from modules.base.models import (
     AppBaseModelWithAuditLog
 )
 from modules.core.models.organization import Organization
+from modules.core.models.lookup import LookupMinor
 from modules.user.models import User
 
 class Auth(AppBaseModelWithAuditLog):
@@ -35,9 +36,12 @@ class Auth(AppBaseModelWithAuditLog):
     organization: Organization = Field(default=None,
             description="Organization"
         )
-    user: User = Field(default=None,
-            description="User"
+    type: LookupMinor = Field(default=None,
+            description="Type"
         )
+    # user: User = Field(default=None,
+    #         description="User"
+    #     )
 
     def __str__(self):
         return f'Auth: {self.id} - {self.sub} - {self.username}'

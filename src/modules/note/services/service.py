@@ -13,7 +13,6 @@ from modules.note.models import Note
 
 # include the project services
 from modules.base.services.base import BaseService
-from modules.base.services.auth.claim_service import ClaimService
 
 # Include the module repositories
 from modules.note.repositories import NoteRepository
@@ -38,7 +37,6 @@ class NoteService(BaseService):
     """ Service class to handle all note related operations. """
     def __init__(self):
         self.repository = NoteRepository()
-        self.claim_service = ClaimService()
         super().__init__(self.repository)
 
     async def create(

@@ -42,7 +42,7 @@ class LookupSchema(BaseSchemaAuditLog, BaseDB):
     lookup_key: Mapped[str] = mapped_column(
         String(128), nullable=False, index=True
     )
-    lookup_value: Mapped[str] = mapped_column(
+    display_value: Mapped[str] = mapped_column(
         String(128), nullable=False, index=True
     )
     description: Mapped[Optional[str]] = mapped_column(

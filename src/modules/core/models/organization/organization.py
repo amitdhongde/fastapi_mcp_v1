@@ -1,5 +1,5 @@
+""" Import the python standard libraries """
 from typing import Annotated, Self
-
 
 from pydantic import ConfigDict, Field
 
