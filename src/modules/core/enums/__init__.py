@@ -1,6 +1,8 @@
 """ Import the required modules """
 from .lookup import LookupMaster
+from .language import Language
 
-_all__ = [
-    "LookupMaster"
+__all__ = [
+    "LookupMaster",
+    "Language"
 ]

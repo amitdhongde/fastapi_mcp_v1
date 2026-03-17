@@ -24,3 +24,10 @@ class Organization(AppBaseModelWithHashAndAuditLog):
         populate_by_name=True,
         from_attributes=True
     )
+
+class OrganizationMinor(Organization):
+    """
+    Organization Minor model for the application.
+    This model is used for the minor details of the organization.
+    """
+    id: int = Field(exclude=True)

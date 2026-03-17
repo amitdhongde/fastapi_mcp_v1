@@ -1,22 +1,16 @@
-#from modules.core.repository.base import BaseRepository
-from modules.user.models.user import User
+""" Import the required modules """
+from modules.base.repository import BaseRepository
 
-class UserRepository():
-    def __init__(self):
-        #super().__init__(User)
-        pass
+# Import the schema and model classes
+from modules.user.schemas import UserSchema
 
-    async def index(self):
-        return 'UserRepository index'
+class UserRepository(BaseRepository[UserSchema]):
+    """
+    This class to handle object related database operations.
 
-    async def show(self, hash: str):
-        return f'UserRepository show {hash}'
-
-    async def create(self):
-        return 'UserRepository create'
-
-    async def update(self, hash: str):
-        return f'UserRepository update {hash}'
-
-    async def delete(self, hash: str):
-        return f'UserRepository delete {hash}'
+    This class provides methods to perform CRUD operations on the database.
+    It uses SQLAlchemy to interact with the database.
+    """
+    def __init__(self, model = UserSchema):
+        self.model = model
+        super().__init__(model)

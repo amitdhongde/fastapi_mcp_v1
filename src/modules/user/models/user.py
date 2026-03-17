@@ -9,42 +9,25 @@ from pydantic import (
 
 # Import the project models
 from modules.base.models import (
+    ApplicationBaseModel,
+    AppBaseModelWithHash,
     AppBaseModelWithHashAndAuditLog
 )
-from modules.core.models.organization.organization import Organization
+from modules.core.models.organization import Organization
 
 class User(AppBaseModelWithHashAndAuditLog):
     """
     User model for the application.
     """
-    title: str = Field(default=None, description="Title", exclude=True)
+    title: str|None = Field(default=None, description="Title", exclude=True)
     first_name: str = Field(default=None, description="First Name",
             exclude=True, max_length=64, examples=["John"]
         )
-    middle_name: str = Field(default=None, description="Middle Name",
+    middle_name: str|None = Field(default=None, description="Middle Name",
             exclude=True, max_length=64
         )
-    last_name: str = Field(default=None, description="Last Name",
+    last_name: str|None = Field(default=None, description="Last Name",
             exclude=True, max_length=64, examples=["Doe"]
-        )
-    avatar: str = Field(default=None, description="Avatar URL",
-            exclude=True, max_length=4000
-        )
-    
-    date_of_birth: date = Field(default=None,
-            description="Date of Birth", exclude=True
-        )
-    gender_id: int = Field(default=0, description="Gender ID",
-            exclude=True
-        )
-    language_id: int = Field(default=0, description="Language ID",
-            exclude=True
-        )
-
-    # Foreign Key to References
-    organization: Organization = Field(default=None,
-            description="Organization",
-            exclude=True
         )
 
     def __str__(self):
@@ -80,3 +63,21 @@ class User(AppBaseModelWithHashAndAuditLog):
         populate_by_name=True,
         from_attributes=True
     )
+
+class UserMinor(User):
+    """
+    User minor response model for the application.
+    This model is used for responses where only basic user information is required.
+    """
+    id: int = Field(exclude=True)
+    
+class UserDetail(ApplicationBaseModel):
+    """
+    User Detail model for the application.
+    This model is used to store additional details about the user.
+    """
+    user_id: int = Field(exclude=True)
+    identifier: str = Field(..., description="Identifier", exclude=False)
+    # is_primary: bool = Field(default=False, description="Is Primary", exclude=False)
+    # is_verified: bool = Field(default=False, description="Is Verified", exclude=False)
+    # is_secure: bool = Field(default=False, description="Is Secure", exclude=False)

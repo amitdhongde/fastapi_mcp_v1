@@ -35,6 +35,14 @@ def relationship_back_populates_auth() -> AuthSchema:
     from modules.auth.schemas import AuthSchema
     return AuthSchema
 
+def relationship_back_populates_organization() -> OrganizationSchema:
+    from modules.core.schemas import OrganizationSchema
+    return OrganizationSchema
+
+def relationship_back_populates_lookup() -> LookupSchema:
+    from modules.core.schemas import LookupSchema
+    return LookupSchema
+
 class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
     User schema for serialization and validation.
@@ -85,20 +93,31 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
 
     # Relationships
     # details: Mapped[List["UserDetailSchema"]] = relationship(
-    #     "UserDetailSchema",
-    #     back_populates="user"
-    # )
+    #         "UserDetailSchema",
+    #         lazy="joined",
+    #         innerjoin=True,
+    #         uselist=True
+    #     )
     # addresses: Mapped[List["UserAddressSchema"]] = relationship(
-    #     "UserAddressSchema",
-    #     back_populates="user"
-    # )
-    # organization: Mapped["OrganizationSchema"] = relationship(
-    #     "OrganizationSchema",
-    #     lazy="select"
-    # )
-    # type: Mapped[Optional["LookupSchema"]] = relationship(
-    #     foreign_keys=[type_id]
-    # )
+    #         "UserAddressSchema",
+    #         back_populates="user",
+    #         lazy="joined"
+    #     )
+    organization: Mapped["OrganizationSchema"] = relationship(
+            relationship_back_populates_organization,
+            lazy="joined",
+            foreign_keys=[organization_id]
+        )
+    type: Mapped[Optional["LookupSchema"]] = relationship(
+            relationship_back_populates_lookup,
+            lazy="joined",
+            foreign_keys=[type_id]
+        )
+    gender: Mapped[Optional["LookupSchema"]] = relationship(
+            relationship_back_populates_lookup,
+            lazy="joined",
+            foreign_keys=[gender_id]
+        )
     # gender: Mapped[Optional["LookupSchema"]] = relationship(
         
     # )
@@ -142,12 +161,15 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     # Flags
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_secure: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
     # user: Mapped["UserSchema"] = relationship(
-    #     "UserSchema", back_populates="details",
-    #     uselist=False, cascade="all, delete-orphan"
-    # )
+    #         "UserSchema", 
+    #         back_populates="details",
+    #         uselist=False,
+    #         lazy="joined"
+    #     )
 
     def __repr__(self):
         return f"<UserDetailSchema(user_id={self.user_id}, identifier={self.identifier})>"
@@ -220,7 +242,7 @@ class UserAddressSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     # Relationships
     # user: Mapped["UserSchema"] = relationship(
     #     "UserSchema", back_populates="addresses",
-    #     uselist=False, cascade="all, delete-orphan"
+    #     uselist=False
     # )
 
     def __repr__(self):

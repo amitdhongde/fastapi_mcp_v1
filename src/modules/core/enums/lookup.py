@@ -11,6 +11,7 @@ class LookupMaster(Enum):
     ENTITY_TYPE = "entity_type"
     ORGANIZATION_TYPE = "organization_type"
     USER_TYPE = "user_type"
+    USER_GENDER = "user_gender"
     USER_DETAIL_TYPE = "user_detail_type"
     USER_DETAIL_SUB_TYPE = "user_detail_sub_type"
     USER_STATUS = "user_status"

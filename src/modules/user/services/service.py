@@ -9,7 +9,7 @@ from modules.user.models import (
     UserCreateRequest,
     UserUpdateRequest
 )
-from modules.user.models import User
+from modules.user.models import (User, UserMinor, UserFullResponse)
 
 # include the project services
 from modules.base.services import BaseService
@@ -135,7 +135,7 @@ class UserService(BaseService):
                 )
             
             # Validate the response
-            models: List[User] = TypeAdapter(List[User]).validate_python(response)
+            models: List[UserMinor] = TypeAdapter(List[UserMinor]).validate_python(response)
 
             return models
         except Exception as e:
@@ -156,7 +156,7 @@ class UserService(BaseService):
                 )
 
             # Validate the response
-            model: User = TypeAdapter(User).validate_python(response)
+            model: UserFullResponse = TypeAdapter(UserFullResponse).validate_python(response)
 
             return model
         except Exception as e:

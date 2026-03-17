@@ -1,4 +1,8 @@
-from .user import User
+from .user import (
+        User,
+        UserMinor,
+        UserDetail
+    )
 from .request import (
         UserBaseModel,
         UserCreateRequest,
@@ -8,9 +12,10 @@ from .response import (
         UserFullResponse
     )
 
-
 __all__ = [
     "User",
+    "UserMinor",
+    "UserDetail",
     "UserBaseModel",
     "UserCreateRequest",
     "UserUpdateRequest",

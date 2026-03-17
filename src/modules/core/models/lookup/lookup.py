@@ -10,7 +10,7 @@ from modules.base.models import (
 )
 
 # Import the enums
-from modules.core.enums.lookup import LookupMaster
+from modules.core.enums import LookupMaster
 
 class Lookup(AppBaseModelWithAuditLog):
     """
@@ -46,8 +46,9 @@ class Lookup(AppBaseModelWithAuditLog):
 
 class LookupMinor(ApplicationBaseModel):
     """
-    Lookup model for the application.
+    Lookup minor model for the application.
     """
+    id: int = Field(exclude=True)
     lookup_key: str = Field(default=None, description="Name",
             max_length=128, examples=["my_lookup"]
         )

@@ -5,10 +5,6 @@ from typing import Any, Generic, Type, TypeVar
 from uuid import UUID
 
 from sqlalchemy import Select, func
-from sqlalchemy.ext.asyncio import (
-    async_sessionmaker,
-    AsyncSession
-)
 from sqlalchemy.sql.expression import select
 
 from modules.base.db.base import BaseDB
@@ -29,33 +25,6 @@ class BaseRepository(Generic[T]):
     def __init__(self, model: Type[T]):
         self.session = session
         self.model_class: Type[T] = model
-
-    async def create(
-        self,
-        attributes: dict[str, Any] = None) -> T:
-        """
-        Creates the model instance.
-
-        :param attributes: The attributes to create the model with.
-        :return: The created model instance.
-        """
-        try:
-            if attributes is None:
-                attributes = {}
-
-            # Create the model instance
-            model = self.model_class(**attributes)
-
-            # Add the model instance to the session
-            self.session.add(model)
-            await self.session.commit()
-            await self.session.flush()
-            await self.session.refresh(model)
-            # await self.session.expire(model)
-
-            return model
-        except EntityNotSavedException as e:
-            raise e
 
     async def get_all(
         self,
@@ -85,25 +54,25 @@ class BaseRepository(Generic[T]):
         field: str,
         value: Any,
         join_: set[str] | None = None,
-        unique: bool = False) -> T:
+        unique: bool = False) -> T|None:
         """
         Returns the model instance matching the field and value.
 
         :param field: The field to match.
         :param value: The value to match.
         :param join_: The joins to make.
-        :return: The model instance.
+        :return: The model instance or None if not found.
         """
         try:
             query = self._query(join_)
             query = await self._get_by(query, field, value)
 
             if join_ is not None:
-                return await self._all_unique(query)
-            if unique:
-                return await self._one(query)
+                query = await self._maybe_join(query, join_)
+            # if unique:
+            #     query = await self._one_or_none(query)
 
-            return await self._all(query)
+            return await self._first(query)
         except EntityNotFoundException as e:
             raise e
 
@@ -124,13 +93,43 @@ class BaseRepository(Generic[T]):
                 query = await self._get_by(query, field, value)
 
             if join_ is not None:
-                return await self._all_unique(query)
+                query = await self._maybe_join(query, join_)
 
             logger.info(f"Query: {query}")
 
             return await self._all(query)
         except EntityNotFoundException as e:
             raise e
+
+    async def create(
+        self,
+        attributes: dict[str, Any] = None) -> T:
+        """
+        Creates the model instance.
+
+        :param attributes: The attributes to create the model with.
+        :return: The created model instance.
+        """
+        try:
+            if attributes is None:
+                attributes = {}
+
+            # Create the model instance
+            model = self.model_class(**attributes)
+
+            # Add the model instance to the session
+            self.session.add(model)
+            await self.session.commit()
+            await self.session.flush()
+            await self.session.refresh(model)
+            # await self.session.expire(model)
+
+            return model
+        except EntityNotSavedException|Exception as e:
+            raise e
+        finally:
+            await self.session.close()
+            await self.session.remove()
 
     async def update(
         self,
@@ -180,7 +179,6 @@ class BaseRepository(Generic[T]):
                 await self._soft_delete(model)
         except Exception as e:
             raise e
-
 
     async def get_by_id(
         self,
@@ -288,6 +286,12 @@ class BaseRepository(Generic[T]):
         return query.all()
 
     async def _all_unique(self, query: Select) -> list[T]:
+        """
+        Returns all unique results from the query.
+
+        :param query: The query to execute.
+        :return: A list of unique model instances.
+        """
         result = await self.session.execute(query)
         return result.unique().scalars().all()
 

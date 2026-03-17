@@ -10,7 +10,7 @@ from pydantic import (
 from modules.base.models import (
     AppBaseModelWithAuditLog
 )
-from modules.core.models.organization import Organization
+from modules.core.models.organization import OrganizationMinor
 from modules.core.models.lookup import LookupMinor
 from modules.user.models import User
 
@@ -33,7 +33,7 @@ class Auth(AppBaseModelWithAuditLog):
         )
     
     # Foreign Key to References
-    organization: Organization = Field(default=None,
+    organization: OrganizationMinor = Field(default=None,
             description="Organization"
         )
     type: LookupMinor = Field(default=None,

@@ -55,6 +55,10 @@ def upgrade() -> None:
             server_default=sa.text('0'),
             nullable=False
         ),
+        sa.Column('is_secure', sa.Boolean(),
+            server_default=sa.text('0'),
+            nullable=False
+        ),
         sa.Column('created_at', sa.DateTime(timezone=True),
             server_default=sa.text('UTC_TIMESTAMP()'),
             nullable=False
