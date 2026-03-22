@@ -110,11 +110,11 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
             lazy="joined",
             foreign_keys=[type_id]
         )
-    # user: Mapped["UserSchema"] = relationship(
-    #         relationship_back_populates_user,
-    #         lazy="joined",
-    #         foreign_keys=[user_id]
-    #     )
+    user: Mapped["UserSchema"] = relationship(
+            relationship_back_populates_user,
+            lazy="joined",
+            foreign_keys=[user_id]
+        )
 
 class RegistrationSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """

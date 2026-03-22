@@ -38,7 +38,7 @@ class ClaimService:
                 raise NotImplementedError("Claim storage not implemented")
 
 
-    def create(self, payload: dict, user: typing.Any) -> AuthClaim:
+    def create(self, payload: dict, auth: typing.Any) -> AuthClaim:
         """ Create a new claim
         Create a new claim with the given payload. The payload is usually
         the user data that will be included in the token. The claim is
@@ -64,11 +64,11 @@ class ClaimService:
                     message="Failed to generate token from payload"
                 )
 
-            if isinstance(user, BaseModel):
-                user = user.model_dump(mode='json', exclude_none=True)
+            if isinstance(auth, BaseModel):
+                auth = auth.model_dump(mode='json', exclude_none=True)
 
-            # Create a claim with the token and user data
-            claim: AuthClaim = AuthClaim(token=token, user=user)
+            # Create a claim with the token and auth data
+            claim: AuthClaim = AuthClaim(token=token, auth=auth)
             if not claim:
                 raise InvalidTokenException(
                     error_msg_code="error_code_claim_generation",
@@ -82,7 +82,6 @@ class ClaimService:
         except (InvalidTokenException, Exception) as e:
             raise e
 
-
     def delete(self, value: str) -> bool:
         """ Delete the claim from storage
         Delete the claim from storage using the given value/identifier.
@@ -94,7 +93,6 @@ class ClaimService:
             value=value,
             key=config.CLAIM_TABLE_KEY
         )
-
 
     def get(self, value: str) -> AuthClaim:
         """ Get the claim from storage

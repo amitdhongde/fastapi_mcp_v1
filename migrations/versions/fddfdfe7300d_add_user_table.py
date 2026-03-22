@@ -36,7 +36,7 @@ def upgrade() -> None:
         ),
         sa.Column('type_id', sa.BigInteger(),
             server_default=sa.text('0'),
-            nullable=False, index=False
+            nullable=False, index=True
         ),
         sa.Column('title', sa.String(length=128),
             nullable=True

@@ -52,10 +52,12 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
 
     # Foreign Key to References
     organization_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(ORGANIZATIONS_FK), index=True
+        ForeignKey(ORGANIZATIONS_FK),
+        index=True
     )
     type_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=False, index=True
+        ForeignKey(LOOKUPS_FK),
+        nullable=False, index=True
     )
 
     # User information
@@ -92,12 +94,11 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     is_pool: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    # details: Mapped[List["UserDetailSchema"]] = relationship(
-    #         "UserDetailSchema",
-    #         lazy="joined",
-    #         innerjoin=True,
-    #         uselist=True
-    #     )
+    details: Mapped[Optional[List["UserDetailSchema"]]] = relationship(
+            "UserDetailSchema",
+            lazy="selectin",
+            uselist=True
+        )
     # addresses: Mapped[List["UserAddressSchema"]] = relationship(
     #         "UserAddressSchema",
     #         back_populates="user",
@@ -105,26 +106,24 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     #     )
     organization: Mapped["OrganizationSchema"] = relationship(
             relationship_back_populates_organization,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[organization_id]
         )
     type: Mapped[Optional["LookupSchema"]] = relationship(
             relationship_back_populates_lookup,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[type_id]
         )
     gender: Mapped[Optional["LookupSchema"]] = relationship(
             relationship_back_populates_lookup,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[gender_id]
         )
-    # gender: Mapped[Optional["LookupSchema"]] = relationship(
-        
-    # )
-    # authentications: Mapped[List["AuthSchema"]] = relationship(
-    #     relationship_back_populates_auth,
-    #     back_populates="user"
-    # )
+    authentications: Mapped[Optional[List["AuthSchema"]]] = relationship(
+            relationship_back_populates_auth,
+            lazy="selectin",
+            uselist=True
+        )
 
     def __repr__(self):
         return f"<UserSchema(id={self.id}, first_name={self.first_name})>"
@@ -138,21 +137,24 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
 
     # Foreign Key to References
     organization_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(ORGANIZATIONS_FK), index=True
+        ForeignKey(ORGANIZATIONS_FK), nullable=False,
+        index=True
     )
     user_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(USERS_FK), index=True
+        ForeignKey(USERS_FK), nullable=False,
+        index=True
     )
     type_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=False, index=True
+        ForeignKey(LOOKUPS_FK), nullable=False,
+        index=True
     )
     subtype_id: Mapped[Optional[BigInteger]] = mapped_column(
-        ForeignKey(LOOKUPS_FK), nullable=True, index=True
+        ForeignKey(LOOKUPS_FK), nullable=False
     )
 
     # Entity information
-    identifier: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True
+    identifier: Mapped[str] = mapped_column(
+        String(255), nullable=False
     )
     proxy: Mapped[Optional[str]] = mapped_column(
         String(255), nullable=True
@@ -164,6 +166,24 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     is_secure: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
+    type: Mapped["LookupSchema"] = relationship(
+            relationship_back_populates_lookup,
+            lazy="selectin",
+            foreign_keys=[type_id]
+        )
+
+    subtype: Mapped[Optional["LookupSchema"]] = relationship(
+            relationship_back_populates_lookup,
+            lazy="selectin",
+            foreign_keys=[subtype_id]
+        )
+
+    # user: Mapped["UserSchema"] = relationship(
+    #         "UserSchema",
+    #         back_populates="details",
+    #         foreign_keys=[user_id],
+    #         lazy="selectin"
+    #     )
     # user: Mapped["UserSchema"] = relationship(
     #         "UserSchema", 
     #         back_populates="details",
@@ -172,7 +192,7 @@ class UserDetailSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     #     )
 
     def __repr__(self):
-        return f"<UserDetailSchema(user_id={self.user_id}, identifier={self.identifier})>"
+        return f"<UserDetailSchema>"
 
 class UserAddressSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
     """

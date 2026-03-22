@@ -10,6 +10,7 @@ from pydantic import (
 
 from modules.core.models.organization import OrganizationMinor
 from modules.core.models.lookup import LookupMinor
+from modules.auth.models import AuthMinorResponse
 from .user import User, UserDetail
 
 # Import the enums
@@ -47,11 +48,20 @@ class UserFullResponse(User):
             description="User Type",
             exclude=False
         )
-    gender: LookupMinor = Field(
+    gender: LookupMinor|None = Field(
             description="Gender",
             exclude=False
         )
-    # details: list[UserDetail] = Field(
-    #         description="User Details",
-    #         exclude=False
-    #     )
+    details: list[UserDetail]|None = Field(
+            description="User Details",
+            exclude=False
+        )
+    authentications: list[AuthMinorResponse]|None = Field(
+            description="User Authentications",
+            exclude=False
+        )
+
+    model_config = ConfigDict(
+        extra='allow',
+        from_attributes=True
+    )

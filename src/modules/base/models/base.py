@@ -5,7 +5,7 @@ from uuid import UUID, uuid1
 from datetime import datetime
 from fastapi import status
 from pydantic import (
-    BaseModel, Field, SerializeAsAny,
+    BaseModel, ConfigDict, Field, SerializeAsAny,
     computed_field, field_serializer
 )
 
@@ -15,6 +15,8 @@ class ApplicationBaseModel(BaseModel):
     """
     Base model for the application.
     """
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., description="UID", ge=1, examples=[1])
 
 

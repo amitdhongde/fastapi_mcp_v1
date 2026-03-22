@@ -22,8 +22,7 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.create_table('user_details',
         sa.Column('id', sa.BigInteger(),
-            autoincrement=True, nullable=False,
-            primary_key=True, index=True
+            autoincrement=True, nullable=False
         ),
         sa.Column('organization_id', sa.BigInteger(),
             server_default=sa.text('0'),
@@ -39,10 +38,10 @@ def upgrade() -> None:
         ),
         sa.Column('subtype_id', sa.BigInteger(),
             server_default=sa.text('0'),
-            nullable=True
+            nullable=False
         ),
         sa.Column('identifier', sa.String(length=255),
-            nullable=True
+            nullable=False
         ),
         sa.Column('proxy', sa.String(length=255),
             nullable=True

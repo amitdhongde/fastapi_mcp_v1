@@ -4,7 +4,7 @@ from typing import List
 from pydantic import TypeAdapter
 
 # Include the project models
-from ..models import Auth
+from ..models import AuthFullResponse
 from modules.user.models import User
 from modules.base.models.auth import AuthClaim
 
@@ -42,7 +42,7 @@ class AuthService:
         """
         try :
             # Validate the credentials
-            authenticated_user: User = await self.repository.authenticate_user(
+            authenticated_user: AuthFullResponse = await self.repository.authenticate_user(
                 payload, ip_address
             )
             if not authenticated_user:
@@ -53,7 +53,7 @@ class AuthService:
                     payload={
                         "user_id": authenticated_user.id
                     },
-                    user=authenticated_user
+                    auth=authenticated_user
                 )
 
                 # Set update the user status
