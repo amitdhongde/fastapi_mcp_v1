@@ -31,17 +31,6 @@ class Auth(AppBaseModelWithAuditLog):
     is_remote_access_only: bool = Field(default=False,
             description="Flag to indicate if the user is remote access only"
         )
-    
-    # Foreign Key to References
-    organization: OrganizationMinor = Field(default=None,
-            description="Organization"
-        )
-    type: LookupMinor = Field(default=None,
-            description="Type"
-        )
-    # user: User = Field(default=None,
-    #         description="User"
-    #     )
 
     def __str__(self):
         return f'Auth: {self.id} - {self.sub} - {self.username}'

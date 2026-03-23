@@ -1,6 +1,7 @@
 from .user import (
         User,
         UserMinor,
+        UserAuthModel,
         UserDetail
     )
 from .request import (
@@ -15,6 +16,7 @@ from .response import (
 __all__ = [
     "User",
     "UserMinor",
+    "UserAuthModel",
     "UserDetail",
     "UserBaseModel",
     "UserCreateRequest",

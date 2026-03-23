@@ -71,13 +71,11 @@ async def index(
     """
     Get all lookup data.
     """
-    #current_user = auth.current_user()
     access_token: str = auth.valid_token()
     if not access_token:
         raise InvalidTokenException()
 
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().index(commons, request, current_user)
+    return await Controller().index(commons, request, auth.get_user())
 
 @router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
@@ -92,13 +90,11 @@ async def show(
     """
     Get the user data with the given uid.
     """
-    #current_user = auth.current_user()
     access_token: str = auth.valid_token()
     if not access_token:
-        raise
+        raise InvalidTokenException()
 
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().show(uid, request, current_user)
+    return await Controller().show(uid, request, auth.get_user())
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
@@ -113,16 +109,13 @@ async def create(
     """
     Create a new user with the given payload.
     """
-    #current_user = auth.current_user()
     access_token: str = auth.valid_token()
     if not access_token:
         raise InvalidTokenException()
 
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-
     return await Controller().create(
             payload, request,
-            current_user
+            auth.get_user()
         )
 
 @router.put("/{uid}",
@@ -139,10 +132,9 @@ async def update(
     """
     Update the user with the given uid and payload.
     """
-    current_user = auth.current_user()
     return await Controller().update(
         uid, payload, request,
-        current_user
+        auth.get_user()
     )
 
 @router.delete("/{uid}",
@@ -158,8 +150,7 @@ async def delete(
     """
     Delete the user with the given uid.
     """
-    current_user = auth.current_user()
     return await Controller().delete(
         uid, request,
-        current_user
+        auth.get_user()
     )

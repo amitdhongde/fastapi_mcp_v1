@@ -5,7 +5,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 # Include the project models
 from ...models.auth.claim import AuthClaim
-from modules.user.models.user import User
+from modules.user.models import UserAuthModel
 
 # Include the project services
 from modules.base.services.auth.claim_service import ClaimService
@@ -66,7 +66,7 @@ class AuthGaurd:
             raise e
 
 
-    def get_user(self) -> User:
+    def get_user(self) -> UserAuthModel:
         try:
             # This could be JWT validation.
             claim: AuthClaim = self.claim_service.get(value=self.access_token)
@@ -75,7 +75,14 @@ class AuthGaurd:
                     error_msg_code="error_code_claim_not_found2"
                 )
 
-            user = claim.user
+            auth_data: dict = claim.auth
+            if "user" in auth_data:
+                user_data = auth_data["user"]
+                user: UserAuthModel = UserAuthModel.model_validate(user_data)
+            else:
+                raise InvalidTokenException(
+                    error_msg_code="error_code_user_not_found_in_claim"
+                )
             return user
         except (InvalidTokenException, Exception) as e:
             raise e

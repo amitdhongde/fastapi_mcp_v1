@@ -69,6 +69,14 @@ class UserMinor(User):
     """
     id: int = Field(exclude=True)
 
+class UserAuthModel(User):
+    """
+    User model for authentication purposes.
+    This model includes only the fields required for authentication and user identification.
+    """
+    id: int = Field(exclude=False)
+    hash: str = Field(exclude=False)
+
 class UserDetail(ApplicationBaseModel):
     """
     User Detail model for the application.

@@ -10,7 +10,7 @@ from pydantic import (
 
 from modules.core.models.organization import OrganizationMinor
 from modules.core.models.lookup import LookupMinor
-from modules.user.models import UserMinor
+from modules.user.models import UserAuthModel
 from .base import Auth
 
 # Import the enums
@@ -34,7 +34,7 @@ class AuthFullResponse(Auth):
             description="Auth Type",
             exclude=False
         )
-    user: UserMinor = Field(
+    user: UserAuthModel = Field(
             description="User",
             exclude=False
         )
@@ -55,7 +55,7 @@ class AuthMinorResponse(Auth):
     # Foreign Key to References
     organization: OrganizationMinor = Field(exclude=True)
     type: LookupMinor = Field(exclude=True)
-    user: UserMinor = Field(exclude=True)
+    user: UserAuthModel = Field(exclude=True)
 
     model_config = ConfigDict(
         extra='allow',
