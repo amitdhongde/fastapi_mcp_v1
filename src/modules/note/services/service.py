@@ -41,13 +41,15 @@ class NoteService(BaseService):
         super().__init__(self.repository)
 
     async def create(
-            self, payload: dict, ip_address: str,
+            self, payload: dict,
+            ip_address: str,
             current_user: BaseModel) -> NoteFullResponse:
         """ Create a new object """
         try :
             print(payload)
             # add the user id to the payload
             payload["organization_id"] = 1
+            payload["created_by"] = current_user.id
 
             # Validate the credentials
             response = await self.repository.create(
@@ -70,8 +72,10 @@ class NoteService(BaseService):
             raise e
 
     async def update(
-            self, uid: str, payload: NoteUpdateRequest,
-            ip_address: str, current_user: BaseModel) -> NoteFullResponse:
+            self, uid: str,
+            payload: NoteUpdateRequest,
+            ip_address: str,
+            current_user: BaseModel) -> NoteFullResponse:
         """ Update the model """
         try:
             # Get the claim from storage
@@ -94,7 +98,8 @@ class NoteService(BaseService):
             raise e
 
     async def delete(
-            self, uid: str, ip_address: str,
+            self, uid: str,
+            ip_address: str,
             current_user: BaseModel) -> NoteFullResponse:
         """ Delete the model """
         try:
@@ -136,7 +141,8 @@ class NoteService(BaseService):
                 )
             
             # Validate the response
-            models: List[NoteMinorResponse] = TypeAdapter(List[NoteMinorResponse]).validate_python(response)
+            models: List[NoteMinorResponse] = \
+                TypeAdapter(List[NoteMinorResponse]).validate_python(response)
 
             return models
         except Exception as e:
@@ -157,7 +163,8 @@ class NoteService(BaseService):
                 )
 
             # Validate the response
-            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
+            model: NoteFullResponse = \
+                TypeAdapter(NoteFullResponse).validate_python(response)
 
             return model
         except Exception as e:

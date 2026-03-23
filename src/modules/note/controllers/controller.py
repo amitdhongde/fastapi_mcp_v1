@@ -72,7 +72,8 @@ class NoteController(BaseController):
     async def create(
             self,
             payload: NoteCreateRequest,
-            request: Request, current_user) -> JsonSuccessResponse:
+            request: Request,
+            current_user: BaseModel) -> JsonSuccessResponse:
         """ Create a new note for the current user """
         try:
             # Get the ip address from the request
@@ -94,10 +95,15 @@ class NoteController(BaseController):
         except Exception as e:
             raise e
 
-    async def update(self, hash: str, payload: NoteUpdateRequest,
-                     request: Request, current_user) -> Note:
+    async def update(
+            self, hash: str, 
+            payload: NoteUpdateRequest,
+            request: Request,
+            current_user: BaseModel) -> Note:
         return await self.service.update(hash, payload)
 
-    async def delete(self, hash: str,
-                     request: Request, current_user) -> None:
+    async def delete(
+            self, hash: str,
+            request: Request,
+            current_user: BaseModel) -> None:
         return await self.service.delete(hash)
