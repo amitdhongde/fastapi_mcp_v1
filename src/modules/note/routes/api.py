@@ -50,26 +50,26 @@ async def index(
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().index(commons, request, current_user)
 
-@router.get("/{uid}",
+@router.get("/{hash}",
         dependencies=[Depends(AuthGaurd)],
         name="get_note",
         operation_id="get_note"
     )
 async def show(
-        uid: str,
+        hash: str,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Get the note data with the given uid.
+    Get the note data with the given hash.
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
     if not access_token:
-        raise
+        raise InvalidTokenException()
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().show(uid, request, current_user)
+    return await Controller().show(hash, request, current_user)
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
@@ -96,41 +96,41 @@ async def create(
             current_user
         )
 
-@router.put("/{uid}",
+@router.put("/{hash}",
         dependencies=[Depends(AuthGaurd)],
         name="update_note",
         operation_id="update_note"
     )
 async def update(
-        uid: str,
+        hash: str,
         payload: NoteUpdateRequest,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Update the note with the given uid and payload.
+    Update the note with the given hash and payload.
     """
     current_user = auth.current_user()
     return await Controller().update(
-        uid, payload, request,
+        hash, payload, request,
         current_user
     )
 
-@router.delete("/{uid}",
+@router.delete("/{hash}",
         dependencies=[Depends(AuthGaurd)],
         name="delete_note",
         operation_id="delete_note"
     )
 async def delete(
-        uid: str,
+        hash: str,
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
     """
-    Delete the note with the given uid.
+    Delete the note with the given hash.
     """
     current_user = auth.current_user()
     return await Controller().delete(
-        uid, request,
+        hash, request,
         current_user
     )

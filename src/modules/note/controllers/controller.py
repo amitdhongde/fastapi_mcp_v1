@@ -19,17 +19,60 @@ class NoteController(BaseController):
     def __init__(self):
         super().__init__()
         self.service = NoteService()
+    
+    async def index(
+            self,
+            commons: dict,
+            request: Request,
+            current_user: BaseModel) -> JsonSuccessResponse:
+        """
+        Get all the users.
+        """
+        try:
+            # Get the ip address from the request
+            ip_address = request.client.host
 
-    async def index(self) -> List[Note]:
-        return await self.service.index()
+            response: BaseModel = await self.service.list(
+                commons=commons,
+                request=request,
+                ip_address=ip_address
+            )
 
-    async def show(self, hash: str) -> Note:
-        return await self.service.show(hash)
+            # Send data from the service
+            return JsonSuccessResponse(
+                content=response
+            )
+        except Exception as e:
+            raise e
+
+    async def show(
+            self,
+            hash: str,
+            request: Request,
+            current_user: BaseModel) -> JsonSuccessResponse:
+        """
+        Get the user with the given hash.
+        """
+        try:
+            # Get the ip address from the request
+            ip_address = request.client.host
+
+            response: BaseModel = await self.service.get(
+                hash=hash,
+                ip_address=ip_address
+            )
+
+            # Send data from the service
+            return JsonSuccessResponse(
+                content=response
+            )
+        except Exception as e:
+            raise e
 
     async def create(
             self,
             payload: NoteCreateRequest,
-            request: Request, current_user) -> Note:
+            request: Request, current_user) -> JsonSuccessResponse:
         """ Create a new note for the current user """
         try:
             # Get the ip address from the request

@@ -4,10 +4,16 @@ from .request import (
     NoteCreateRequest,
     NoteUpdateRequest
 )
+from .response import (
+    NoteFullResponse,
+    NoteMinorResponse
+)
 
 __all__ = [
     "Note",
     "NoteBaseModel",
     "NoteCreateRequest",
-    "NoteUpdateRequest"
+    "NoteUpdateRequest",
+    "NoteFullResponse",
+    "NoteMinorResponse"
 ]

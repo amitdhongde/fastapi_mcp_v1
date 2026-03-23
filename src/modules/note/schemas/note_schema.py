@@ -34,6 +34,14 @@ if TYPE_CHECKING:
         OrganizationSchema
     )
 
+def relationship_back_populates_organization() -> OrganizationSchema:
+    from modules.core.schemas import OrganizationSchema
+    return OrganizationSchema
+
+def relationship_back_populates_lookup() -> LookupSchema:
+    from modules.core.schemas import LookupSchema
+    return LookupSchema
+
 class NoteSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
     Note model for the application.
@@ -54,7 +62,7 @@ class NoteSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
         ForeignKey(LOOKUPS_FK), nullable=False, index=True
     )
     reference_id: Mapped[BigInteger] = mapped_column(
-        ForeignKey(USERS_FK), index=True
+        BigInteger, nullable=False, index=False
     )
 
     # Entity fields
@@ -71,9 +79,12 @@ class NoteSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
 
     # Relationships
     organization: Mapped["OrganizationSchema"] = relationship(
-        lazy="selectin"
-    )
+            relationship_back_populates_organization,
+            lazy="selectin",
+            foreign_keys=[organization_id]
+        )
     entity: Mapped["LookupSchema"] = relationship(
-        lazy="selectin"
-    )
-
+            relationship_back_populates_lookup,
+            lazy="selectin",
+            foreign_keys=[entity_type_id]
+        )

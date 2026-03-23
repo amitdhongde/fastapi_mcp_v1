@@ -60,9 +60,15 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     __tablename__ = "authentications"
 
     # Foreign fields
-    organization_id: Mapped[int] = mapped_column(ForeignKey(ORGANIZATIONS_FK), index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey(USERS_FK), index=True)
-    type_id: Mapped[int] = mapped_column(ForeignKey(LOOKUPS_FK), index=True)
+    organization_id: Mapped[int] = mapped_column(
+            ForeignKey(ORGANIZATIONS_FK), index=True
+        )
+    user_id: Mapped[int] = mapped_column(
+            ForeignKey(USERS_FK), index=True
+        )
+    type_id: Mapped[int] = mapped_column(
+            ForeignKey(LOOKUPS_FK), index=True
+        )
 
     # Entity fields
     sub: Mapped[Optional[str]] = mapped_column(String(255), nullable=True,
@@ -102,17 +108,17 @@ class AuthSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     # Relationships
     organization: Mapped["OrganizationSchema"] = relationship(
             relationship_back_populates_organization,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[organization_id]
         )
     type: Mapped["LookupSchema"] = relationship(
             relationship_back_populates_lookup,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[type_id]
         )
     user: Mapped["UserSchema"] = relationship(
             relationship_back_populates_user,
-            lazy="joined",
+            lazy="selectin",
             foreign_keys=[user_id]
         )
 
@@ -131,18 +137,18 @@ class RegistrationSchema(BaseSchemaAuditLogDeleteLog, BaseDB):
 
     # Entity fields
     first_name: Mapped[str] = mapped_column(
-        String(64), nullable=False
-    )
+            String(64), nullable=False
+        )
     middle_name: Mapped[Optional[str]] = mapped_column(
-        String(64), nullable=True
-    )
+            String(64), nullable=True
+        )
     last_name: Mapped[str] = mapped_column(
-        String(64), nullable=False
-    )
+            String(64), nullable=False
+        )
     email: Mapped[str] = mapped_column(
-        String(128), nullable=False,
-        index=True
-    )
+            String(128), nullable=False,
+            index=True
+        )
     phone: Mapped[Optional[str]] = mapped_column(
-        String(20), nullable=True
-    )
+            String(20), nullable=True
+        )

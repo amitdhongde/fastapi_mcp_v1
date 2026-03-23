@@ -7,9 +7,10 @@ from pydantic import TypeAdapter, BaseModel
 # Include the project models
 from modules.note.models import (
     NoteCreateRequest,
-    NoteUpdateRequest
+    NoteUpdateRequest,
+    NoteFullResponse,
+    NoteMinorResponse
 )
-from modules.note.models import Note
 
 # include the project services
 from modules.base.services.base import BaseService
@@ -41,7 +42,7 @@ class NoteService(BaseService):
 
     async def create(
             self, payload: dict, ip_address: str,
-            current_user: BaseModel) -> Note:
+            current_user: BaseModel) -> NoteFullResponse:
         """ Create a new object """
         try :
             print(payload)
@@ -59,7 +60,7 @@ class NoteService(BaseService):
                 )
 
             # Validate the response
-            model: Note = TypeAdapter(Note).validate_python(response)
+            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful creation
             NoteCreatedEvent().raise_event(model)
@@ -70,7 +71,7 @@ class NoteService(BaseService):
 
     async def update(
             self, uid: str, payload: NoteUpdateRequest,
-            ip_address: str, current_user: BaseModel) -> Note:
+            ip_address: str, current_user: BaseModel) -> NoteFullResponse:
         """ Update the model """
         try:
             # Get the claim from storage
@@ -83,7 +84,7 @@ class NoteService(BaseService):
                 )
 
             # Validate the response
-            model: Note = TypeAdapter(Note).validate_python(response)
+            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful update
             NoteUpdatedEvent().raise_event(model)
@@ -94,7 +95,7 @@ class NoteService(BaseService):
 
     async def delete(
             self, uid: str, ip_address: str,
-            current_user: BaseModel) -> Note:
+            current_user: BaseModel) -> NoteFullResponse:
         """ Delete the model """
         try:
             response = await self.repository.delete_by_hash(
@@ -106,7 +107,7 @@ class NoteService(BaseService):
                 )
 
             # Validate the response
-            model: Note = TypeAdapter(Note).validate_python(response)
+            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful deletion
             NoteDeletedEvent().raise_event(model)            
@@ -120,7 +121,7 @@ class NoteService(BaseService):
             commons: dict,
             request: Request,
             ip_address: str
-        ) -> List[Note]:
+        ) -> List[NoteMinorResponse]:
         """ List all the objects """
         try:
             # Validate the payload
@@ -135,7 +136,7 @@ class NoteService(BaseService):
                 )
             
             # Validate the response
-            models: List[Note] = TypeAdapter(List[Note]).validate_python(response)
+            models: List[NoteMinorResponse] = TypeAdapter(List[NoteMinorResponse]).validate_python(response)
 
             return models
         except Exception as e:
@@ -143,20 +144,20 @@ class NoteService(BaseService):
 
     async def get(
             self,
-            uid: str,
+            hash: str,
             ip_address: str
-        ) -> Note:
+        ) -> NoteFullResponse:
         """ Get the object """
         try:
             # Validate the payload
-            response = await self.repository.get_by_hash(uid)
+            response = await self.repository.get_by_hash(hash)
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the note from IP address = " + ip_address
                 )
 
             # Validate the response
-            model: Note = TypeAdapter(Note).validate_python(response)
+            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
 
             return model
         except Exception as e:

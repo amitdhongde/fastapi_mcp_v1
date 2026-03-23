@@ -27,11 +27,6 @@ class Note(AppBaseModelWithHashAndAuditLog):
             nullable=False
         )
 
-    # Foreign Key to References
-    organization: Organization = Field(default=None,
-            description="Organization"
-        )
-
     def __str__(self):
         return f'Note: {str(self.id)} - {self.note}'
 
