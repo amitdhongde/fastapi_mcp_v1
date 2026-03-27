@@ -4,7 +4,7 @@ from typing import List
 
 from pydantic import BaseModel, TypeAdapter
 
-from modules.base.models.auth.token import Token
+from modules.base.models.auth import AccessToken
 from modules.base.models.auth.claim import AuthClaim
 
 # Exception classes
@@ -37,8 +37,11 @@ class ClaimService:
             case _:
                 raise NotImplementedError("Claim storage not implemented")
 
-
-    def create(self, payload: dict, auth: typing.Any) -> AuthClaim:
+    def create(
+            self, payload: dict,
+            sub: str|None = None,
+            auth: typing.Any = None
+        ) -> AuthClaim:
         """ Create a new claim
         Create a new claim with the given payload. The payload is usually
         the user data that will be included in the token. The claim is
@@ -47,7 +50,6 @@ class ClaimService:
         The claim is created using the TokenHelper class, which generates
         a JWT token with the given payload and expiration period.
         """
-
         try:
             # Validate the payload
             if not isinstance(payload, dict):
@@ -57,7 +59,10 @@ class ClaimService:
                 )
 
             # Generate a token
-            token: Token = TokenHelper.encode(payload, expire_period=config.JWT_EXPIRES)
+            token: AccessToken = TokenHelper.encode(
+                    payload, subject=sub,
+                    expire_period=config.JWT_EXPIRES
+                )
             if not token:
                 raise InvalidTokenException(
                     error_msg_code="error_code_token_generation",
@@ -116,9 +121,8 @@ class ClaimService:
             # Validate the claim using TypeAdapter
             ta: TypeAdapter = TypeAdapter(AuthClaim)
             return ta.validate_python(claim)
-        except (InvalidTokenException, Exception):
-            raise
-
+        except (InvalidTokenException, Exception) as e:
+            raise e
 
     def get_all(self, query: dict) -> List[AuthClaim]:
         """ Get all the claims from storage
@@ -138,13 +142,12 @@ class ClaimService:
                     error_msg_code="error_code_claim_not_found",
                     message="Claims not found in the storage"
                 )
-            
+
             # Validate the claim using TypeAdapter
             ta: TypeAdapter = TypeAdapter(List[AuthClaim])
             return ta.validate_python(claims)
         except (InvalidTokenException, Exception) as e:
             raise e
-
 
     def store(self, claim: AuthClaim) -> bool:
         """ Store the claim in storage
@@ -164,5 +167,21 @@ class ClaimService:
                 )
 
             return True
+        except (InvalidTokenException, Exception) as e:
+            raise e
+
+    def decode(self, token: str) -> dict:
+        """ Decode the token and return the payload
+        Decode the token using the TokenHelper and return the payload.
+        If the token is invalid or expired, it raises an exception.
+        """
+        try:
+            payload: dict = TokenHelper.decode(token)
+            if not payload:
+                raise InvalidTokenException(
+                    error_msg_code="error_code_token_decode_failed",
+                    message="Failed to decode token"
+                )
+            return payload
         except (InvalidTokenException, Exception) as e:
             raise e

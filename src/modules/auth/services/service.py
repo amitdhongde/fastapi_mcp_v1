@@ -4,13 +4,19 @@ from typing import List
 from pydantic import TypeAdapter
 
 # Include the project models
-from ..models import AuthFullResponse
 from modules.user.models import User
 from modules.base.models.auth import AuthClaim
+from modules.auth.models import AuthFullResponse
 
 # include the project services
-from modules.base.services.base import BaseService
+from modules.base.services import BaseService
 from modules.base.services.auth import ClaimService
+
+# Include the module exceptions
+from modules.base.exceptions import (
+        AuthenticationException,
+        InvalidTokenException
+    )
 
 # Include the module repositories
 from ..repositories.repository import AuthRepository
@@ -18,18 +24,11 @@ from ..repositories.repository import AuthRepository
 # Include the module events
 from ..events import LoginEvent
 
-# Include the module exceptions
-from modules.base.exceptions import (
-    AuthenticationException,
-    InvalidTokenException
-)
-
-class AuthService:
+class AuthService(BaseService):
     """ AuthService class to handle authentication related operations. """
     def __init__(self):
         self.repository = AuthRepository()
         self.claim_service = ClaimService()
-
 
     async def authenticate(self, payload: dict, ip_address: str,) -> AuthClaim:
         """ Authenticare the user
@@ -42,29 +41,31 @@ class AuthService:
         """
         try :
             # Validate the credentials
-            authenticated_user: AuthFullResponse = await self.repository.authenticate_user(
+            auth: AuthFullResponse = await self.repository.authenticate_user(
                 payload, ip_address
             )
-            if not authenticated_user:
+            if not auth:
                 raise AuthenticationException()
-            else:
-                # Create and store the claim
-                claim: AuthClaim = self.claim_service.create(
-                    payload={
-                        "user_id": authenticated_user.id
-                    },
-                    auth=authenticated_user
-                )
 
-                # Set update the user status
+            # Create and store the claim
+            claim: AuthClaim = self.claim_service.create(
+                payload={
+                    "auth_id": auth.id,
+                    "user_id": auth.user.id,
+                    "org_id": auth.organization.id
+                },
+                sub=str(auth.user.hash),
+                auth=auth
+            )
 
-                # Raise event for successful login
-                LoginEvent().raise_event(claim)
+            # Set update the user status
+
+            # Raise event for successful login
+            LoginEvent().raise_event(claim)
 
             return claim
         except Exception as e:
             raise e
-
 
     async def logout(self, token: str, is_forced: bool = False) -> bool:
         """ Logout the user
@@ -103,7 +104,6 @@ class AuthService:
         except Exception as e:
             raise e
 
-
     async def register(self, payload: dict, ip_address: str) -> dict:
         """ Register the user
 
@@ -128,7 +128,6 @@ class AuthService:
         except Exception as e:
             raise e
 
-
     async def forgot_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a forgot password request
 
@@ -144,7 +143,6 @@ class AuthService:
             return payload
         except Exception as e:
             raise e
-
 
     async def change_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a chnage password request
@@ -162,7 +160,6 @@ class AuthService:
         except Exception as e:
             raise e
 
-
     async def reset_password(self, payload: dict, ip_address: str) -> dict:
         """ Send a chnage password request
 
@@ -178,7 +175,6 @@ class AuthService:
             return payload
         except Exception as e:
             raise e
-
 
     async def refresh_token(
             self,
@@ -196,10 +192,12 @@ class AuthService:
             claim = self.claim_service.get(value=token)
             if not claim:
                 raise InvalidTokenException()
-            
+
             print(f"Claim: {claim}")
 
-            authenticated_user: User = TypeAdapter(User).validate_python(claim.user, experimental_allow_partial=True)
+            authenticated_user: User = TypeAdapter(User).validate_python(
+                    claim.auth, experimental_allow_partial=True
+                )
             if not authenticated_user:
                 raise InvalidTokenException()
 
@@ -208,7 +206,7 @@ class AuthService:
                 payload={
                     "user_id": authenticated_user.id
                 },
-                user=authenticated_user
+                auth=authenticated_user
             )
 
             # Delete the old claim from storage

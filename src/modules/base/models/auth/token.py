@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel, ConfigDict, PositiveInt
 
 class Token(BaseModel):
-    access_token: str = None
+    access_token: str | None = None
     token_type: str = "bearer"
     refesh_token: str | None = None
     id_token: str | None = None

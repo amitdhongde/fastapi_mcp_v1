@@ -1,33 +1,29 @@
-from datetime import datetime, timedelta, timezone
-
 import jwt
-
+from datetime import datetime, timedelta, timezone
 from modules.base.config import config
-#from modules.core.exceptions import GenericBaseException
-
-from ..models.auth.token import Token
-
+from modules.base.models.auth import AccessToken
 
 class DecodeTokenException(Exception):
     code = 400
     error_code = "TOKEN__DECODE_ERROR"
     message = "token decode error"
 
-
 class ExpiredTokenException(Exception):
     code = 400
     error_code = "TOKEN__EXPIRE_TOKEN"
     message = "expired token"
 
-
 class TokenHelper:
     @staticmethod
-    def encode(payload: dict, subject: str=None, expire_period: int = 3600) -> Token:
+    def encode(
+            payload: dict, subject: str|None=None,
+            expire_period: int = 3600
+        ) -> AccessToken:
         # Set the expiration time
-        expires_at = datetime.now(tz=timezone.utc) + timedelta(seconds=expire_period)
+        expires_at: datetime = datetime.now(tz=timezone.utc) + timedelta(seconds=expire_period)
 
         # Set the payload
-        token: Token = Token()
+        token: AccessToken = AccessToken()
         token.access_token = jwt.encode(
             payload={
                 **payload,
@@ -51,11 +47,13 @@ class TokenHelper:
                 token,
                 config.JWT_SECRET_KEY,
                 config.JWT_ALGORITHM,
+                audience=config.JWT_AUDIENCE,
+                issuer=config.JWT_ISSUER
             )
-        except jwt.exceptions.DecodeError:
-            raise DecodeTokenException
-        except jwt.exceptions.ExpiredSignatureError:
-            raise ExpiredTokenException
+        except jwt.exceptions.DecodeError as exc:
+            raise DecodeTokenException from exc
+        except jwt.exceptions.ExpiredSignatureError as exc:
+            raise ExpiredTokenException from exc
 
     @staticmethod
     def decode_expired_token(token: str) -> dict:
@@ -66,5 +64,5 @@ class TokenHelper:
                 config.JWT_ALGORITHM,
                 options={"verify_exp": False},
             )
-        except jwt.exceptions.DecodeError:
-            raise DecodeTokenException
+        except jwt.exceptions.DecodeError as exc:
+            raise DecodeTokenException from exc

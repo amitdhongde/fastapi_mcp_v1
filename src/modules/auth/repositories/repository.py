@@ -35,12 +35,12 @@ class AuthRepository(BaseRepository[AuthSchema]):
 
             # Get the user from the database
             response_list: list[AuthSchema] = await self.get_by_fields(credentials)
-        
+
             if not response_list:
                 return None
             else:
                 authenticated_user: AuthSchema = response_list[0]
-                
+
                 # Validate the response
                 return TypeAdapter(AuthFullResponse).validate_python(authenticated_user)
         except Exception as e:

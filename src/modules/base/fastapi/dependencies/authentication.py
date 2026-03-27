@@ -4,7 +4,7 @@ from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 # Include the project models
-from ...models.auth.claim import AuthClaim
+from modules.base.models.auth import AuthClaim
 from modules.user.models import UserAuthModel
 
 # Include the project services
@@ -15,7 +15,6 @@ from modules.base.exceptions import (
     InvalidTokenException,
     AuthenticationException
 )
-
 
 class AuthGaurd:
     access_token: str | None = None
@@ -43,11 +42,6 @@ class AuthGaurd:
         except Exception as e:
             raise e
 
-
-    def access_token(self) -> str:
-        return self.access_token
-
-
     def valid_token(self)-> str:
         """
         Validate the access token and return it if valid.
@@ -55,37 +49,58 @@ class AuthGaurd:
         """
         try:
             # This could be JWT validation.
-            claim: AuthClaim = self.claim_service.get(value=self.access_token)
-            if claim is None:
+            self.get_claim()
+
+            # Token validation logic can be added here (e.g., check expiration, issuer, etc.)
+            payload: dict = self.claim_service.decode(self.access_token)
+            if payload is None:
                 raise InvalidTokenException(
-                    error_msg_code="error_code_claim_not_found1"
+                    error_msg_code="error_code_invalid_token"
                 )
 
             return self.access_token
-        except (InvalidTokenException, Exception) as e:
+        except (InvalidTokenException, AuthenticationException, Exception) as e:
             raise e
 
+    def get_token(self) -> str:
+        return self.access_token
 
     def get_user(self) -> UserAuthModel:
         try:
             # This could be JWT validation.
-            claim: AuthClaim = self.claim_service.get(value=self.access_token)
-            if claim is None:
-                raise InvalidTokenException(
-                    error_msg_code="error_code_claim_not_found2"
-                )
+            claim: AuthClaim = self.get_claim()
 
             auth_data: dict = claim.auth
             if "user" in auth_data:
                 user_data = auth_data["user"]
                 user: UserAuthModel = UserAuthModel.model_validate(user_data)
             else:
-                raise InvalidTokenException(
+                raise AuthenticationException(
                     error_msg_code="error_code_user_not_found_in_claim"
                 )
             return user
-        except (InvalidTokenException, Exception) as e:
+        except (AuthenticationException, Exception) as e:
             raise e
+
+    def get_claim(self) -> AuthClaim:
+        try:
+            claim: AuthClaim = self.claim_service.get(value=self.access_token)
+            if claim is None:
+                raise AuthenticationException(
+                    error_msg_code="error_code_claim_not_found"
+                )
+            return claim
+        except (AuthenticationException, Exception) as e:
+            raise e
+
+    def __call__(self,
+            request: Annotated[
+                HTTPAuthorizationCredentials,
+                Depends(HTTPBearer(auto_error=False))
+            ]
+        ) -> str:
+        return self.valid_token()
+
 
     # async def valid_token(self, token: str) -> str:
     #     try:

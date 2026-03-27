@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
 from modules.base.fastapi.dependencies import (
-    common_parameters
-)
+        common_parameters
+    )
 
 # Import middlewares and dependencies
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
@@ -15,14 +15,14 @@ from ..controllers import NoteController as Controller
 
 # Include the project models
 from ..models import (
-    NoteCreateRequest,
-    NoteUpdateRequest
-)
+        NoteCreateRequest,
+        NoteUpdateRequest
+    )
 
 # Include the project exceptions
 from modules.base.exceptions import (
-    InvalidTokenException
-)
+        InvalidTokenException
+    )
 
 router = APIRouter(prefix="/note", tags=["Notes"])
 
@@ -42,13 +42,11 @@ async def index(
     """
     Get all note data.
     """
-    #current_user = auth.current_user()
     access_token: str = auth.valid_token()
     if not access_token:
         raise InvalidTokenException()
 
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().index(commons, request, current_user)
+    return await Controller().index(commons, request, auth.get_user())
 
 @router.get("/{hash}",
         dependencies=[Depends(AuthGaurd)],

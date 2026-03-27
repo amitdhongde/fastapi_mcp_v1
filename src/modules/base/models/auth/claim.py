@@ -1,7 +1,6 @@
-from pydantic import BaseModel, ConfigDict, UUID1, computed_field
+from pydantic import BaseModel, ConfigDict, computed_field
 
 from .token import Token as AuthToken
-
 
 class AuthClaim(BaseModel):
     """
@@ -28,6 +27,6 @@ class AuthClaim(BaseModel):
 
     model_config = ConfigDict(
         extra='allow',
-        populate_by_name=True, 
+        populate_by_name=True,
         from_attributes=True
     )

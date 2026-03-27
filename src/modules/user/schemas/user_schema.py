@@ -121,6 +121,7 @@ class UserSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
         )
     authentications: Mapped[Optional[List["AuthSchema"]]] = relationship(
             relationship_back_populates_auth,
+            overlaps="user",
             lazy="selectin",
             uselist=True
         )
