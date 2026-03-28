@@ -3,10 +3,10 @@ from typing import Callable
 from fastapi import Request
 
 # Include the Error Response model
-from ..models.response import JsonErrorResponse
+from modules.base.models import JsonErrorResponse
 
 # Import the project models
-from .base import GenericBaseException
+from modules.base.exceptions import GenericBaseException
 
 # Set Error logger
 logger = logging.getLogger("error")
