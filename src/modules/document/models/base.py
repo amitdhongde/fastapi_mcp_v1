@@ -27,6 +27,14 @@ class Document(AppBaseModelWithHashAndAuditLog):
             exclude=True, max_length=64, examples=["Doe"]
         )
 
+    media_url: Annotated[str | None,
+        Field(
+            pattern=r"^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+            examples=["https://www.postimageurl.com"],
+            default=None
+            ),
+        ]
+
     # Foreign Key to References
     organization: Organization = Field(default=None,
             description="Organization"

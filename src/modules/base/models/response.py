@@ -9,8 +9,10 @@ from starlette.background import BackgroundTask
 from modules.base.config import config
 
 # Include the project models
+from modules.base.exceptions import GenericBaseException
 from .base import GenericResponse as GenericResponseModel, T
-from ..exceptions.base import GenericBaseException
+
+DATA_TYPE_APP_JSON = "application/json"
 
 # """ Generic Success Response Model
 
@@ -53,10 +55,10 @@ class BaseResponse(Response):
     """
     Base class for all response models.
     """
-    media_type: str = "application/json"
+    media_type: str = DATA_TYPE_APP_JSON
 
 class JsonErrorResponse(BaseResponse):
-    media_type: str = "application/json"
+    media_type: str = DATA_TYPE_APP_JSON
 
     def __init__(
         self,
@@ -106,7 +108,7 @@ class JsonSuccessResponse(BaseResponse):
     all the endpoints.
     """
 
-    media_type = "application/json"
+    media_type = DATA_TYPE_APP_JSON
 
     def __init__(
         self,

@@ -39,6 +39,9 @@ class AuthGaurd:
                 )
             self.access_token = token.credentials
             self.claim_service = claim_service
+
+            # Validate the token during initialization
+            self.valid_token()
         except Exception as e:
             raise e
 
@@ -52,7 +55,7 @@ class AuthGaurd:
             self.get_claim()
 
             # Token validation logic can be added here (e.g., check expiration, issuer, etc.)
-            payload: dict = self.claim_service.decode(self.access_token)
+            payload: dict = self.get_token_data()
             if payload is None:
                 raise InvalidTokenException(
                     error_msg_code="error_code_invalid_token"
@@ -93,12 +96,39 @@ class AuthGaurd:
         except (AuthenticationException, Exception) as e:
             raise e
 
+    def get_token_data(self) -> dict:
+        try:
+            return self.claim_service.decode(self.access_token)
+        except Exception as e:
+            raise e
+
+    @property
+    def authorize(self, required_privileges: list[str]) -> bool:
+        """
+        Authorize the user based on the required privileges.
+        Return True if authorized, False otherwise.
+        """
+        try:
+            print("Required Privileges:", required_privileges)
+            # claim: AuthClaim = self.get_claim()
+            # user_privileges: list[str] = claim.privileges
+
+            # # Check if any of the required privileges are in the user's privileges
+            # for privilege in required_privileges:
+            #     if privilege in user_privileges:
+            #         return True
+
+            return False
+        except Exception as e:
+            raise e
+
     def __call__(self,
             request: Annotated[
                 HTTPAuthorizationCredentials,
                 Depends(HTTPBearer(auto_error=False))
             ]
         ) -> str:
+        print("AuthGaurd __call__ with token:", request)
         return self.valid_token()
 
 

@@ -21,7 +21,7 @@ class AuthFullResponse(Auth):
     Auth model for the application.
     """
     id: int = Field(exclude=True)
-    privileges: list = []
+    privileges: list = ['auth_logout', 'user_read', 'user_update', 'user_delete', 'user_create', 'organization_read', 'organization_update', 'organization_delete', 'organization_create', 'note_read', 'note_update', 'note_delete', 'note_create']
     settings: list = []
     unread_notifications: int = 0
 

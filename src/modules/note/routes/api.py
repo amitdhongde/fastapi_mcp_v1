@@ -8,13 +8,16 @@ from modules.base.fastapi.dependencies import (
     )
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import (
+        AuthGaurd
+    )
+from modules.base.models.response import JsonSuccessResponse
 
 # Include the project controllers
-from ..controllers import NoteController as Controller
+from modules.note.controllers import NoteController as Controller
 
 # Include the project models
-from ..models import (
+from modules.note.models import (
         NoteCreateRequest,
         NoteUpdateRequest
     )
@@ -32,34 +35,37 @@ router = APIRouter(prefix="/note", tags=["Notes"])
             Depends(common_parameters)
         ],
         name="get_notes",
-        operation_id="get_note_list"
+        operation_id="get_note_list",
+        status_code=200
     )
 async def index(
         commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
-    ) -> Any:
+        auth: Annotated[AuthGaurd, Depends(AuthGaurd)],
+        controller: Controller = Depends()
+    ) -> JsonSuccessResponse:
     """
     Get all note data.
     """
-    access_token: str = auth.valid_token()
-    if not access_token:
-        raise InvalidTokenException()
+    # access_token: str = auth.valid_token()
+    # if not access_token:
+    #     raise InvalidTokenException()
 
-    return await Controller().index(commons, request, auth.get_user())
+    return await controller.index(commons, request, auth.get_token_data())
 
-@router.get("/{hash}",
+@router.get("/{uid}",
         dependencies=[Depends(AuthGaurd)],
         name="get_note",
         operation_id="get_note"
     )
 async def show(
-        hash: str,
+        uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGaurd = Depends(AuthGaurd),
+        controller: Controller = Depends()
     ) -> Any:
     """
-    Get the note data with the given hash.
+    Get the note data with the given UID.
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
@@ -67,7 +73,7 @@ async def show(
         raise InvalidTokenException()
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().show(hash, request, current_user)
+    return await controller.show(uid, request, current_user)
 
 @router.post("/",
         dependencies=[Depends(AuthGaurd)],
@@ -77,7 +83,8 @@ async def show(
 async def create(
         payload: NoteCreateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGaurd = Depends(AuthGaurd),
+        controller: Controller = Depends()
     ) -> Any:
     """
     Create a new note with the given payload.
@@ -89,46 +96,48 @@ async def create(
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
 
-    return await Controller().create(
+    return await controller.create(
             payload, request,
             current_user
         )
 
-@router.put("/{hash}",
+@router.put("/{uid}",
         dependencies=[Depends(AuthGaurd)],
         name="update_note",
         operation_id="update_note"
     )
 async def update(
-        hash: str,
+        uid: str,
         payload: NoteUpdateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGaurd = Depends(AuthGaurd),
+        controller: Controller = Depends()
     ) -> Any:
     """
-    Update the note with the given hash and payload.
+    Update the note with the given UID and payload.
     """
     current_user = auth.current_user()
-    return await Controller().update(
-        hash, payload, request,
+    return await controller.update(
+        uid, payload, request,
         current_user
     )
 
-@router.delete("/{hash}",
+@router.delete("/{uid}",
         dependencies=[Depends(AuthGaurd)],
         name="delete_note",
         operation_id="delete_note"
     )
 async def delete(
-        hash: str,
+        uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGaurd = Depends(AuthGaurd),
+        controller: Controller = Depends()
     ) -> Any:
     """
-    Delete the note with the given hash.
+    Delete the note with the given UID.
     """
     current_user = auth.current_user()
-    return await Controller().delete(
-        hash, request,
+    return await controller.delete(
+        uid, request,
         current_user
     )

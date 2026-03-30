@@ -14,7 +14,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Import the application module routes
 from modules.base.models.response import JsonSuccessResponse
-from modules.auth.routes.route import router as auth_router
+from modules.auth.routes import auth_router
 from modules.core.routes.organization_router import router as organization_router
 from modules.core.routes.lookup_router import router as lookup_router
 from modules.user.routes.api import router as user_router

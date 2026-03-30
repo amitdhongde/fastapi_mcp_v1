@@ -55,7 +55,6 @@ class AuthController(BaseController):
         except Exception as e:
             raise e
 
-
     async def logout(
             self,
             access_token: str,
@@ -76,7 +75,6 @@ class AuthController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def register(
             self,
@@ -102,7 +100,6 @@ class AuthController(BaseController):
         except Exception as e:
             raise e
 
-
     async def forgot_password(
             self,
             payload: ForgotPasswordRequest,
@@ -126,7 +123,6 @@ class AuthController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def change_password(
             self,
@@ -152,7 +148,6 @@ class AuthController(BaseController):
         except Exception as e:
             raise e
 
-
     async def reset_password(
             self,
             payload: ResetPasswordRequest,
@@ -176,7 +171,6 @@ class AuthController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def refresh_token(
             self,

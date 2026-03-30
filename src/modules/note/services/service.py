@@ -132,14 +132,14 @@ class NoteService(BaseService):
             # Validate the payload
             response = await self.repository.get_all(
                 skip=commons.get("skip", 0),
-                limit=commons.get("limit", 100),
+                limit=commons.get("limit", 100)
             )
             logger.debug(f"Note count: {len(response)}")
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the notes from IP address."
                 )
-            
+
             # Validate the response
             models: List[NoteMinorResponse] = \
                 TypeAdapter(List[NoteMinorResponse]).validate_python(response)

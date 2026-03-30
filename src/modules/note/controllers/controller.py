@@ -19,12 +19,12 @@ class NoteController(BaseController):
     def __init__(self):
         super().__init__()
         self.service = NoteService()
-    
+
     async def index(
             self,
             commons: dict,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            auth: dict) -> JsonSuccessResponse:
         """
         Get all the users.
         """
