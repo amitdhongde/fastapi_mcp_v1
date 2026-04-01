@@ -13,18 +13,18 @@ class Note(AppBaseModelWithHashAndAuditLog):
     Note model for the application.
     """
     entity_type_id: int = Field(default=0, description="Type of the entity.",
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
     reference_id: int = Field(default=0, description="ID of the reference entity.",
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
     title: str = Field(default=None, description="Title of the note.",
             examples=["Meeting Notes", "Project Update"],
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
     content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."],
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
 
     def __str__(self):

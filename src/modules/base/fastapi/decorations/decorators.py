@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import asyncio
 from functools import wraps
-from inspect import Parameter, signature, unwrap
+from inspect import Parameter, iscoroutinefunction, signature, unwrap
 from types import MappingProxyType
 from typing import Any, Tuple, Union, get_type_hints
 
@@ -164,7 +163,7 @@ def _create_wrapper(
     Returns:
         A wrapper function that excludes dependency arguments when calling the original function.
     """
-    if asyncio.iscoroutinefunction(func):
+    if iscoroutinefunction(func):
 
         @wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:

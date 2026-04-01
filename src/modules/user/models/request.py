@@ -12,16 +12,18 @@ class UserBaseModel(BaseModel):
     """
     title: str = Field(default=None, description="Title of the user.",
             examples=["Mr.", "Mrs.", "Dr."], max_length=64,
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
     first_name: str = Field(default=None, description="First Name of the user.",
-            examples=["John"], max_length=64, nullable=False
+            examples=["John"], max_length=64,
+            json_schema_extra={"nullable": False}
         )
     middle_name: str = Field(default=None, description="Middle Name of the user.",
-            max_length=64, nullable=True
+            max_length=64, json_schema_extra={"nullable": True}
         )
     last_name: str = Field(default=None, description="Last Name of the user.",
-            examples=["Doe"], max_length=64, nullable=False
+            examples=["Doe"], max_length=64,
+            json_schema_extra={"nullable": False}
         )
 
     @model_validator(mode='after')

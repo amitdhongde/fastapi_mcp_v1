@@ -1,59 +1,80 @@
-from typing import Any
+""" Import the required modules """
+from typing import Annotated, Any
 
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
+from fastmcp.dependencies import CurrentRequest
 from starlette.requests import Request
 
 # Include the project controllers
-from ..controllers import NoteController as Controller
+from modules.base.fastapi.dependencies.common import common_parameters
+from modules.note.controllers import NoteController as Controller
 
 # Include the project models
-from ..models import (
-    NoteCreateRequest,
-    NoteUpdateRequest
-)
+from modules.note.models import (
+        NoteCreateRequest,
+        NoteUpdateRequest
+    )
 
 mcp = FastMCP()
 
 @mcp.tool(
-    name="get a notes list for a user",
+    name="get_a_notes_list_for_a_user",
     description="Get a list of notes for the authenticated user.",
-    tags=["note", "get", "list"]
+    tags={"note", "get", "list"}
 )
-async def get_notes_list(request: Request) -> Any:
-    return await Controller().list(request)
+async def get_notes_list(
+        request: Request = CurrentRequest()
+    ) -> Any:
+    """
+    Get all note data.
+    """
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
+    return await Controller().index({"limit": 10}, request, current_user)
 
 @mcp.tool(
-    name="get a note with a given uid",
+    name="get_a_note_with_a_given_uid",
     description="Get a note with the given uid.",
-    tags=["note", "get"]
+    tags={"note", "get"}
 )
-async def get_note(uid: str, request: Request) -> Any:
-    return await Controller().show(uid, request)
+async def get_note(
+        uid: str, request: Request = CurrentRequest()
+    ) -> Any:
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
+    return await Controller().show(uid, request, current_user)
 
-@mcp.tool(
-    name="create a note with any text content and title",
-    description="Create a new note with the given title and content.",
-    tags=["note", "create"]
-)
-async def create_note(content: str, title: str, request: Request) -> Any:
-    create_request = NoteCreateRequest(title=title, content=content)
-    current_user = auth.current_user()
-    return await Controller().create(create_request, request, current_user)
+# @mcp.tool(
+#     name="create_a_note_with_any_text_content_and_title",
+#     description="Create a new note with the given title and content.",
+#     tags={"note", "create"}
+# )
+# async def create_note(
+#         payload: NoteCreateRequest,
+#         request: Request = CurrentRequest(),
+#         controller: Controller = Depends()
+#     ) -> Any:
+#     """
+#     Create a new note with the given payload.
+#     """
+#     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
+#     return await controller.create(
+#             payload, request,
+#             current_user
+#         )
 
-@mcp.tool(
-    name="update a note with a given uid",
-    description="Update a note with the given uid and new title and content.",
-    tags=["note", "update"]
-)
-async def update_note(uid: str, title: str, content: str, request: Request) -> Any:
-    update_request = NoteUpdateRequest(title=title, content=content)
-    current_user = auth.current_user()
-    return await Controller().update(uid, update_request, request, current_user)
+# @mcp.tool(
+#     name="update_a_note_with_a_given_uid",
+#     description="Update a note with the given uid and new title and content.",
+#     tags={"note", "update"}
+# )
+# async def update_note(uid: str, title: str, content: str, request: Request, controller: Controller = Depends()) -> Any:
+#     update_request = NoteUpdateRequest(title=title, content=content)
+#     current_user = auth.current_user()
+#     return await controller.update(uid, update_request, request, current_user)
 
-@mcp.tool(
-    name="delete a note with a given uid",
-    description="Delete a note with the given uid.",
-    tags=["note", "delete"]
-)
-async def delete_note(uid: str, request: Request) -> Any:
-    return await Controller().delete(uid, request)
+# @mcp.tool(
+#     name="delete_a_note_with_a_given_uid",
+#     description="Delete a note with the given uid.",
+#     tags={"note", "delete"}
+# )
+# async def delete_note(uid: str, request: Request, controller: Controller = Depends()) -> Any:
+#     return await controller.delete(uid, request)

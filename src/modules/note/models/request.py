@@ -12,11 +12,11 @@ class NoteBaseModel(BaseModel):
     """
     title: str = Field(default=None, description="Title of the note.",
             examples=["Meeting Notes", "Project Update"],
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
     content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."], max_length=8000,
-            nullable=False
+            json_schema_extra={"nullable": False}
         )
 
     @model_validator(mode='after')
