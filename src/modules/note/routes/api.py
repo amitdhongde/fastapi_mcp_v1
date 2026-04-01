@@ -12,6 +12,7 @@ from modules.base.fastapi.dependencies.authentication import (
         AuthGaurd
     )
 from modules.base.models.response import JsonSuccessResponse
+from modules.base.fastapi.decorations import permissions
 
 # Include the project controllers
 from modules.note.controllers import NoteController as Controller
@@ -38,6 +39,7 @@ router = APIRouter(prefix="/note", tags=["Notes"])
         operation_id="get_note_list",
         status_code=200
     )
+@permissions("note_read")
 async def index(
         commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
@@ -47,10 +49,6 @@ async def index(
     """
     Get all note data.
     """
-    # access_token: str = auth.valid_token()
-    # if not access_token:
-    #     raise InvalidTokenException()
-
     return await controller.index(commons, request, auth.get_token_data())
 
 @router.get("/{uid}",
@@ -58,6 +56,7 @@ async def index(
         name="get_note",
         operation_id="get_note"
     )
+@permissions("note_read")
 async def show(
         uid: str,
         request: Request,
@@ -80,6 +79,7 @@ async def show(
         name="create_note",
         operation_id="create_note"
     )
+@permissions("note_create")
 async def create(
         payload: NoteCreateRequest,
         request: Request,
@@ -106,6 +106,7 @@ async def create(
         name="update_note",
         operation_id="update_note"
     )
+@permissions("note_update")
 async def update(
         uid: str,
         payload: NoteUpdateRequest,
@@ -127,6 +128,7 @@ async def update(
         name="delete_note",
         operation_id="delete_note"
     )
+@permissions("note_delete")
 async def delete(
         uid: str,
         request: Request,

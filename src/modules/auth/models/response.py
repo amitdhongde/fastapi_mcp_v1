@@ -21,7 +21,6 @@ class AuthFullResponse(Auth):
     Auth model for the application.
     """
     id: int = Field(exclude=True)
-    privileges: list = ['auth_logout', 'user_read', 'user_update', 'user_delete', 'user_create', 'organization_read', 'organization_update', 'organization_delete', 'organization_create', 'note_read', 'note_update', 'note_delete', 'note_create']
     settings: list = []
     unread_notifications: int = 0
 
@@ -38,6 +37,19 @@ class AuthFullResponse(Auth):
             description="User",
             exclude=False
         )
+
+    @computed_field(
+        description="Active Privileges"
+    )
+    @property
+    def privileges(self) -> list:
+        return [
+            'auth_logout',
+            'user_read', 'user_update', 'user_delete', 'user_create',
+            'organization_read', 'organization_update', 'organization_delete',
+            'organization_create',
+            'note_read', 'note_update', 'note_delete', 'note_create'
+        ]
 
     model_config = ConfigDict(
         extra='allow',
