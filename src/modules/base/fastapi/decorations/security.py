@@ -1,8 +1,17 @@
 import functools
 from typing import Any, Callable
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends
 
-def permissions(privileges: list[str] = ["*"]):
+# Include the project models
+from modules.base.models.auth import AuthClaim
+from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.exceptions import (
+        ForbiddenException
+    )
+
+from .decorators import depends
+
+def permissions(*allow_privileges: str) -> Callable[..., Any]:
     """
     Decorator to check permissions for a route.
 
@@ -15,31 +24,29 @@ def permissions(privileges: list[str] = ["*"]):
         function: The decorated function.
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @depends(guard=Depends(AuthGaurd))
         @functools.wraps(func)
-        def wrapper(privileges=privileges, *args, **kwargs):
+        def wrapper(*args, guard: AuthGaurd, **kwargs) -> Any:
+            # Get the claim from the guard
+            claim: AuthClaim = guard.get_claim()
+
             # Check permissions here
-            if "*" not in privileges and "all" not in privileges:
-                for privilege in privileges:
-                    if privilege == "*":
-                        # Check for all permissions
-                        pass
-                    else:
-                        # Check for specific permission
-                        pass
-                token = OAuth2PasswordBearer(tokenUrl="token")
-                print(f"Token: {token}")
-            else:
-                pass
+            if not {'any', 'all', '*'}.issuperset(set(allow_privileges)):
+
+                # Get the privileges from the claim
+                user_privileges: list[str] = claim.auth.get("privileges", [])
+
+                # Check if user has any of the required privileges
+                if not any(privilege in user_privileges for privilege in allow_privileges):
+                    raise ForbiddenException("User does not have required privileges")
 
             return func(*args, **kwargs)
-
         return wrapper
-
     return decorator
-
 
 def test_permissions(func: Callable) -> Callable:
     @functools.wraps(func)
-    def test_func():
-        return func()
+    def test_func(*args, **kwargs):
+        print("Testing permissions...")
+        return func(*args, **kwargs)
     return test_func

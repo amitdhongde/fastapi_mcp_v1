@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.decorations import permissions
 
 # Include the project controllers
 from ..controllers import AuthController as Controller
@@ -33,6 +34,7 @@ async def authenticate(
 @router.put("/logout",
         dependencies=[Depends(AuthGaurd)]
     )
+@permissions("*")
 async def logout(
         auth: AuthGaurd = Depends(AuthGaurd),
         controller: Controller = Depends()
@@ -43,11 +45,11 @@ async def logout(
     access_token: str = auth.valid_token()
     return await controller.logout(access_token, is_forced=False)
 
-
 @router.put("/logout/forced",
         dependencies=[Depends(AuthGaurd)],
         name="forced_logout"
     )
+@permissions("*")
 async def logout_forced(
     auth: AuthGaurd = Depends(AuthGaurd),
     controller: Controller = Depends()
@@ -58,7 +60,6 @@ async def logout_forced(
     """
     access_token: str = auth.valid_token()
     return await controller.logout(access_token, is_forced=True)
-
 
 @router.post("/register")
 async def register(
@@ -71,7 +72,6 @@ async def register(
     """
     return await controller.register(payload, request)
 
-
 @router.post("/forgot-password")
 async def forgot_password(
         payload: ForgotPasswordRequest,
@@ -82,7 +82,6 @@ async def forgot_password(
     Send a forgot password email to the user with the given payload.
     """
     return await controller.forgot_password(payload, request)
-
 
 @router.post("/change-password", dependencies=[Depends(AuthGaurd)])
 async def change_password(
@@ -95,7 +94,6 @@ async def change_password(
     Change the password of the user with the given payload.
     """
     return await controller.change_password(payload, request)
-
 
 @router.get("/token/refresh",
         dependencies=[Depends(AuthGaurd)],

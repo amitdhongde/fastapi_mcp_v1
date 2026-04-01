@@ -1,7 +1,11 @@
 """ Import the required modules """
 from typing import Annotated
 from fastapi import Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import (
+        HTTPAuthorizationCredentials,
+        HTTPBearer,
+        OAuth2PasswordBearer
+    )
 
 # Include the project models
 from modules.base.models.auth import AuthClaim
