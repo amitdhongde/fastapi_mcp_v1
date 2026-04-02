@@ -10,6 +10,7 @@ from .base import (
     ForbiddenException,
     UnauthorizedException,
     NotFoundException,
+    ModelValidationException,
     InternalServerErrorException,
     AWSValueException
 )
@@ -25,6 +26,7 @@ __all__ = [
     "ForbiddenException",
     "UnauthorizedException",
     "NotFoundException",
+    "ModelValidationException",
     "InternalServerErrorException",
     "AWSValueException"
 ]

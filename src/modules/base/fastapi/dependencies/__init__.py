@@ -6,6 +6,9 @@
 #     AllowAll,
 # )
 from .common import common_parameters
+from .authentication import (
+        get_auth_token
+    )
 
 __all__ = [
     "common_parameters",
@@ -14,4 +17,5 @@ __all__ = [
     # "IsAuthenticated",
     # "IsAdmin",
     # "AllowAll",
+    "get_auth_token"
 ]

@@ -1,16 +1,21 @@
 """ Import the required modules """
-from typing import Any
+from typing import Any, Annotated
 from fastapi import APIRouter, Depends, Request
+from fastapi.security import OAuth2PasswordRequestForm
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGaurd, get_auth_token
 from modules.base.fastapi.decorations import permissions
+from modules.base.exceptions import (
+    AuthenticationException,
+    ModelValidationException
+)
 
 # Include the project controllers
-from ..controllers import AuthController as Controller
+from modules.auth.controllers import AuthController as Controller
 
 # Include the project models
-from ..models.request import (
+from modules.auth.models.request import (
     LoginRequest,
     RegisterRequest,
     ForgotPasswordRequest,
@@ -19,6 +24,27 @@ from ..models.request import (
 
 # Create the module router
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+@router.post("/token")
+async def login_for_access_token(
+        request: Request,
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        controller: Controller = Depends()
+    ) -> Any:
+    """ 
+    Authenticate the user and return an access token by converting
+    the OAuth2PasswordRequestForm to a LoginRequest.
+    """
+    try:
+        payload: LoginRequest = LoginRequest(
+            username=form_data.username,
+            code=form_data.password
+        )
+        return await controller.authenticate(payload, request)
+    except AuthenticationException as e:
+        raise e
+    except Exception as e:
+        raise ModelValidationException(e) from e
 
 @router.post("/login")
 async def authenticate(
@@ -32,17 +58,17 @@ async def authenticate(
     return await controller.authenticate(credentials, request)
 
 @router.put("/logout",
-        dependencies=[Depends(AuthGaurd)]
+        dependencies=[Depends(AuthGaurd), Depends(get_auth_token)]
     )
 @permissions("*")
 async def logout(
-        auth: AuthGaurd = Depends(AuthGaurd),
+        token: Annotated[str, Depends(get_auth_token)],
         controller: Controller = Depends()
     ) -> Any:
     """
     Logout a user with the given access token.
     """
-    access_token: str = auth.valid_token()
+    access_token: str = token
     return await controller.logout(access_token, is_forced=False)
 
 @router.put("/logout/forced",

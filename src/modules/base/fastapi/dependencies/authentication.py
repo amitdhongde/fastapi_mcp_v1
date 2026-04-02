@@ -1,10 +1,10 @@
 """ Import the required modules """
 from typing import Annotated
+
 from fastapi import Depends
 from fastapi.security import (
         HTTPAuthorizationCredentials,
-        HTTPBearer,
-        OAuth2PasswordBearer
+        HTTPBearer, OAuth2PasswordBearer
     )
 
 # Include the project models
@@ -20,12 +20,21 @@ from modules.base.exceptions import (
     AuthenticationException
 )
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+async def get_auth_token(
+        token: Annotated[str, Depends(oauth2_scheme)]
+    ) -> str:
+    return token
+
 class AuthGaurd:
     access_token: str | None = None
 
     def __init__(
         self,
-        token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer(auto_error=False))],
+        token: Annotated[
+                HTTPAuthorizationCredentials,
+                Depends(HTTPBearer(auto_error=False))
+            ],
         claim_service: ClaimService = Depends(ClaimService)
     ):
         """ Initialize the AuthGaurd with the provided token and claim service.

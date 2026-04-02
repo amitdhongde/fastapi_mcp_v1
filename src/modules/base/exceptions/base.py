@@ -2,6 +2,7 @@
 import logging
 from http import HTTPStatus
 from botocore.exceptions import ClientError
+from pydantic import ValidationError
 
 # Set Error logger
 logger = logging.getLogger("error")
@@ -217,7 +218,14 @@ class UnprocessableEntity(GenericBaseException):
 class ModelValidationException(UnprocessableEntity):
     error_msg_code = 'error_code_model_validation'
 
-    def __init__(self, message: str|None=None, error_msg_code: str|None=None):
+    def __init__(self, exception: Exception|None=None,
+            message: str|None=None, error_msg_code: str|None=None
+        ):
+
+        if exception is not None:
+            if isinstance(exception, ValidationError):
+                self.message = exception.errors()
+            self.message = str(exception)
         if message is not None:
             self.message = message
         if error_msg_code is not None:

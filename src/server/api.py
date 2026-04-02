@@ -33,6 +33,7 @@ from modules.base.exceptions import (
     ForbiddenException,
     UnauthorizedException,
     NotFoundException,
+    ModelValidationException,
     InternalServerErrorException,
     AWSValueException
 )
@@ -154,6 +155,10 @@ def init_handlers(_app: FastAPI) -> None:
         handler=custom_exception_handler(),
     )
     _app.add_exception_handler(
+        exc_class_or_status_code=ModelValidationException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
         exc_class_or_status_code=InternalServerErrorException,
         handler=custom_exception_handler(),
     )
@@ -200,8 +205,9 @@ api_app = FastAPI(
     description=config.APP_DESCRIPTION,
     version=config.APP_VERSION,
     debug=config.DEBUG,
-    docs_url=None if config.ENVIRONMENT == "production" else "/api/documentation",
-    redoc_url=None if config.ENVIRONMENT == "production" else "/api/redocumentation",
+    root_path="/api",
+    docs_url=None if config.ENVIRONMENT == "production" else "/documentation",
+    redoc_url=None if config.ENVIRONMENT == "production" else "/redocumentation",
     lifespan=lifespan,
     middleware=make_middleware(),
     default_response_class=JsonSuccessResponse,
@@ -209,9 +215,6 @@ api_app = FastAPI(
         "syntaxHighlight": {"theme": "obsidian"}
     },
 )
-
-# Create an instance of the OAuth2PasswordBearer class
-#oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 """ Add Exception Handlers
 This is used to handle the exceptions raised in the application.

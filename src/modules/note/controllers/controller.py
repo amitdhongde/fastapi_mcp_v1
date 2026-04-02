@@ -1,6 +1,6 @@
 """ Import the required modules """
 from typing import List
-from fastapi import Request
+from starlette.requests import Request
 from pydantic import BaseModel
 
 from modules.base.controller import BaseController
@@ -30,7 +30,7 @@ class NoteController(BaseController):
         """
         try:
             # Get the ip address from the request
-            ip_address = request.client.host
+            ip_address = request.client.host if request is not None else "0.0.0.0"
 
             response: BaseModel = await self.service.list(
                 commons=commons,
@@ -55,7 +55,7 @@ class NoteController(BaseController):
         """
         try:
             # Get the ip address from the request
-            ip_address = request.client.host
+            ip_address = request.client.host if request is not None else "0.0.0.0"
 
             response: BaseModel = await self.service.get(
                 hash=hash,
@@ -77,7 +77,7 @@ class NoteController(BaseController):
         """ Create a new note for the current user """
         try:
             # Get the ip address from the request
-            ip_address = request.client.host
+            ip_address = request.client.host if request is not None else "0.0.0.0"
 
             # Convert the payload to dict
             payload = payload.model_dump()

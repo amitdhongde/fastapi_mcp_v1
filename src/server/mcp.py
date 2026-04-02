@@ -30,7 +30,7 @@ def greeting(name: str) -> dict:
         return {"message": f"Hey {name}, RR5555SF343434!"}
     else:
         return {"message": f"Hello, {name}! Wishing you a great day from aQveir!"}
-    
+
 @mcp.tool
 def add_numbers(a: int, b: int) -> dict:
     """Add two numbers and return the result."""
