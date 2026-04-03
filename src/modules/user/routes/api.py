@@ -3,11 +3,11 @@
 # from modules.user.controllers.controller import UserController
 
 # # Import middlewares
-# from modules.base.fastapi.dependencies.authentication import AuthGaurd
+# from modules.base.fastapi.dependencies.authentication import AuthGuard
 
 # router = APIRouter(prefix="/users", tags=["Users"])
 
-# @router.get("/", dependencies=[Depends(AuthGaurd)])
+# @router.get("/", dependencies=[Depends(AuthGuard)])
 # async def index():
 #     return await UserController().index()
 
@@ -23,7 +23,7 @@
 # async def update(hash: str):
 #     return await UserController().update(hash)
 
-# @router.delete("/{hash}", dependencies=[Depends(AuthGaurd)])
+# @router.delete("/{hash}", dependencies=[Depends(AuthGuard)])
 # async def delete(hash: str):
 #     return await UserController().delete(hash)
 
@@ -37,7 +37,7 @@ from modules.base.fastapi.dependencies import (
 )
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGuard
 
 # Include the project controllers
 from ..controllers import UserController as Controller
@@ -57,7 +57,7 @@ router = APIRouter(prefix="/user", tags=["Users"])
 
 @router.get("/",
         dependencies=[
-            Depends(AuthGaurd),
+            Depends(AuthGuard),
             Depends(common_parameters)
         ],
         name="get_users",
@@ -66,7 +66,7 @@ router = APIRouter(prefix="/user", tags=["Users"])
 async def index(
         commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get all lookup data.
@@ -78,14 +78,14 @@ async def index(
     return await Controller().index(commons, request, auth.get_user())
 
 @router.get("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_user",
         operation_id="get_user"
     )
 async def show(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get the user data with the given uid.
@@ -97,14 +97,14 @@ async def show(
     return await Controller().show(uid, request, auth.get_user())
 
 @router.post("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="create_user",
         operation_id="create_user"
     )
 async def create(
         payload: UserCreateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Create a new user with the given payload.
@@ -119,7 +119,7 @@ async def create(
         )
 
 @router.put("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="update_user",
         operation_id="update_user"
     )
@@ -127,7 +127,7 @@ async def update(
         uid: str,
         payload: UserUpdateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Update the user with the given uid and payload.
@@ -138,14 +138,14 @@ async def update(
     )
 
 @router.delete("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="delete_user",
         operation_id="delete_user"
     )
 async def delete(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Delete the user with the given uid.

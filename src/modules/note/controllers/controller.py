@@ -2,9 +2,13 @@
 from typing import List
 from starlette.requests import Request
 from pydantic import BaseModel
+import logging
 
 from modules.base.controller import BaseController
 from modules.base.models.response import JsonSuccessResponse
+from modules.base.fastapi.dependencies.authentication import (
+        AuthGuard
+    )
 
 from ..services import NoteService
 from ..models import Note
@@ -15,7 +19,11 @@ from ..models import (
     NoteUpdateRequest
 )
 
+# Initialize the logger
+logger = logging.getLogger(__name__)
+
 class NoteController(BaseController):
+    """ Controller class to handle all note related actions. """
     def __init__(self):
         super().__init__()
         self.service = NoteService()
@@ -24,7 +32,7 @@ class NoteController(BaseController):
             self,
             commons: dict,
             request: Request,
-            auth: dict) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
         Get all the users.
         """
@@ -33,15 +41,16 @@ class NoteController(BaseController):
             ip_address = request.client.host if request is not None else "0.0.0.0"
 
             response: BaseModel = await self.service.list(
-                commons=commons,
-                request=request,
-                ip_address=ip_address
-            )
+                    commons=commons,
+                    request=request,
+                    ip_address=ip_address,
+                    guard=guard
+                )
 
             # Send data from the service
             return JsonSuccessResponse(
-                content=response
-            )
+                    content=response
+                )
         except Exception as e:
             raise e
 

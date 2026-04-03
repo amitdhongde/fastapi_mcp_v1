@@ -4,31 +4,34 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd, get_auth_token
+from modules.base.fastapi.dependencies.authentication import (
+        AuthGuard,
+        get_auth_guard
+    )
 from modules.base.fastapi.decorations import permissions
 from modules.base.exceptions import (
-    AuthenticationException,
-    ModelValidationException
-)
+        AuthenticationException,
+        ModelValidationException
+    )
 
 # Include the project controllers
 from modules.auth.controllers import AuthController as Controller
 
 # Include the project models
 from modules.auth.models.request import (
-    LoginRequest,
-    RegisterRequest,
-    ForgotPasswordRequest,
-    ChangePasswordRequest
-)
+        LoginRequest,
+        RegisterRequest,
+        ForgotPasswordRequest,
+        ChangePasswordRequest
+    )
 
 # Create the module router
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/token")
 async def login_for_access_token(
-        request: Request,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        request: Request = Depends(Request),
         controller: Controller = Depends()
     ) -> Any:
     """ 
@@ -58,33 +61,33 @@ async def authenticate(
     return await controller.authenticate(credentials, request)
 
 @router.put("/logout",
-        dependencies=[Depends(AuthGaurd), Depends(get_auth_token)]
+        dependencies=[Depends(get_auth_guard)]
     )
 @permissions("*")
 async def logout(
-        token: Annotated[str, Depends(get_auth_token)],
+        guard: Annotated[AuthGuard, Depends(get_auth_guard)],
         controller: Controller = Depends()
     ) -> Any:
     """
     Logout a user with the given access token.
     """
-    access_token: str = token
+    access_token: str = guard.get_token()
     return await controller.logout(access_token, is_forced=False)
 
 @router.put("/logout/forced",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(get_auth_guard)],
         name="forced_logout"
     )
 @permissions("*")
 async def logout_forced(
-    auth: AuthGaurd = Depends(AuthGaurd),
+    guard: Annotated[AuthGuard, Depends(get_auth_guard)],
     controller: Controller = Depends()
     ) -> Any:
     """
     Logout a user with the given access token for all devices.
     This is a forced logout.
     """
-    access_token: str = auth.valid_token()
+    access_token: str = guard.get_token()
     return await controller.logout(access_token, is_forced=True)
 
 @router.post("/register")
@@ -101,7 +104,7 @@ async def register(
 @router.post("/forgot-password")
 async def forgot_password(
         payload: ForgotPasswordRequest,
-        request: Request,
+        request: Request = Depends(Request),
         controller: Controller = Depends()
     ) -> Any:
     """
@@ -109,11 +112,11 @@ async def forgot_password(
     """
     return await controller.forgot_password(payload, request)
 
-@router.post("/change-password", dependencies=[Depends(AuthGaurd)])
+@router.post("/change-password", dependencies=[Depends(get_auth_guard)])
 async def change_password(
         payload: ChangePasswordRequest,
-        request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd),
+        guard: Annotated[AuthGuard, Depends(get_auth_guard)],
+        request: Request = Depends(Request),
         controller: Controller = Depends()
     ) -> Any:
     """
@@ -122,16 +125,16 @@ async def change_password(
     return await controller.change_password(payload, request)
 
 @router.get("/token/refresh",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(get_auth_guard)],
         name="refresh_token"
     )
 async def refresh_token(
-        request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd),
+        guard: Annotated[AuthGuard, Depends(get_auth_guard)],
+        request: Request = Depends(Request),
         controller: Controller = Depends()
     ) -> Any:
     """
     Refresh the access token of the user with the given refresh token.
     """
-    access_token: str = auth.valid_token()
+    access_token: str = guard.get_token()
     return await controller.refresh_token(access_token, request)

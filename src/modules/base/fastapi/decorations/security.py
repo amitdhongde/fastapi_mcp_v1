@@ -1,10 +1,10 @@
 import functools
-from typing import Any, Callable
+from typing import Any, Callable, Annotated
 from fastapi import Depends
 
 # Include the project models
 from modules.base.models.auth import AuthClaim
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGuard
 from modules.base.exceptions import (
         ForbiddenException
     )
@@ -24,11 +24,11 @@ def permissions(*allow_privileges: str) -> Callable[..., Any]:
         function: The decorated function.
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        @depends(guard=Depends(AuthGaurd))
+        @depends(_security_guard = Depends(AuthGuard))
         @functools.wraps(func)
-        def wrapper(*args, guard: AuthGaurd, **kwargs) -> Any:
+        def wrapper(*args, _security_guard: AuthGuard, **kwargs) -> Any:
             # Get the claim from the guard
-            claim: AuthClaim = guard.get_claim()
+            claim: AuthClaim = _security_guard.get_claim()
 
             # Check permissions here
             if not {'any', 'all', '*'}.issuperset(set(allow_privileges)):

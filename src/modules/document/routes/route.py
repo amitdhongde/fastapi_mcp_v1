@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGuard
 
 # Include the project controllers
 from ..controllers import DocumentController as Controller
@@ -17,13 +17,13 @@ from ..models import (
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
 @router.get("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_documents",
         operation_id="get_document_list"
     )
 async def index(
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get all documents.
@@ -32,14 +32,14 @@ async def index(
     return await Controller().index(request, current_user)
 
 @router.get("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_document",
         operation_id="get_document"
     )
 async def show(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get the document data with the given uid.
@@ -48,14 +48,14 @@ async def show(
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="create_document",
         operation_id="create_document"
     )
 async def create(
         payload: DocumentCreateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Create a new document with the given payload.
@@ -67,7 +67,7 @@ async def create(
         )
 
 @router.put("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="update_document",
         operation_id="update_document"
     )
@@ -75,7 +75,7 @@ async def update(
         uid: str,
         payload: DocumentUpdateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Update the document with the given uid and payload.
@@ -87,14 +87,14 @@ async def update(
     )
 
 @router.delete("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="delete_document",
         operation_id="delete_document"
     )
 async def delete(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Delete the document with the given uid.

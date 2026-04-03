@@ -20,13 +20,38 @@ from modules.base.exceptions import (
     AuthenticationException
 )
 
+# Define the OAuth2 scheme for token extraction
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-async def get_auth_token(
-        token: Annotated[str, Depends(oauth2_scheme)]
-    ) -> str:
-    return token
 
-class AuthGaurd:
+def get_auth_guard(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        guard: Annotated[AuthGuard, Depends()],
+    ) -> AuthGuard:
+    """ Dependency to extract and validate the access token from the request.
+    This function uses the OAuth2PasswordBearer to extract the token from the
+    Authorization header and then validates it using the AuthGuard. If the token
+    is valid, it returns the AuthGuard instance; otherwise, it raises an
+    InvalidTokenException.
+    Args:
+        token (str): The access token extracted from the Authorization header.
+        guard (AuthGuard): The AuthGuard instance used to validate the token.
+    Returns:
+        AuthGuard: The AuthGuard instance if the token is valid.
+    Raises:
+        InvalidTokenException: If the token is invalid or not provided.
+    """
+    if guard.valid_token() != token:
+        raise InvalidTokenException(
+            error_msg_code="error_code_invalid_token"
+        )
+    return guard
+
+class AuthGuard:
+    """ AuthGuard is a dependency class used to validate access tokens and retrieve
+    user information from the token. It uses the ClaimService to decode the token
+    and extract the claims, which include user information. If the token is valid,
+    it allows access to the protected routes; otherwise, it raises an exception.
+    """
     access_token: str | None = None
 
     def __init__(
@@ -37,7 +62,7 @@ class AuthGaurd:
             ],
         claim_service: ClaimService = Depends(ClaimService)
     ):
-        """ Initialize the AuthGaurd with the provided token and claim service.
+        """ Initialize the AuthGuard with the provided token and claim service.
         This class is used to validate the access token and retrieve the user
         associated with the token. If the token is not provided or invalid,
         an InvalidTokenException is raised.
@@ -115,67 +140,11 @@ class AuthGaurd:
         except Exception as e:
             raise e
 
-    @property
-    def authorize(self, required_privileges: list[str]) -> bool:
-        """
-        Authorize the user based on the required privileges.
-        Return True if authorized, False otherwise.
-        """
-        try:
-            print("Required Privileges:", required_privileges)
-            # claim: AuthClaim = self.get_claim()
-            # user_privileges: list[str] = claim.privileges
-
-            # # Check if any of the required privileges are in the user's privileges
-            # for privilege in required_privileges:
-            #     if privilege in user_privileges:
-            #         return True
-
-            return False
-        except Exception as e:
-            raise e
-
     def __call__(self,
             request: Annotated[
                 HTTPAuthorizationCredentials,
                 Depends(HTTPBearer(auto_error=False))
             ]
         ) -> str:
-        print("AuthGaurd __call__ with token:", request)
+        print("AuthGuard __call__ with token:", request)
         return self.valid_token()
-
-
-    # async def valid_token(self, token: str) -> str:
-    #     try:
-    #         # This could be JWT validation, looking up a session token in the DB, etc.
-    #         return token
-    #     except Exception as e:
-    #         raise InvalidTokenException(message=str(e)) from e
-
-
-    # async def get_user_for_token(token: str):
-    #     return await User(1, "Amit", "amit@gmail.com")
-
-
-    # async def validate_user(self):
-        # try:
-        #     user = await self.get_user_for_token(self.access_token)
-        #     if user == None:
-        #         raise HTTPException(status_code=401, detail="Unauthorized")
-        #     return user
-        # except:
-        #     raise HTTPException(status_code=401, detail="Unauthorized")
-
-        # class TokenGuard_ValidUser(TokenGaurd_ValidToken):
-
-        #     async def __call__(self, request: Request = Depends(Request)):
-        #         user = await self.validate_user(request)
-        #         return user
-
-        # class TokenGuard_ValidPermissions(TokenGaurd_ValidToken):
-
-        #     async def __call__(self, request: Request = Depends(Request)):
-        #         user = await self.validate_permissions(request)
-        #         return user
-
-auth = AuthGaurd

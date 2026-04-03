@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Request
 from modules.base.fastapi.dependencies import (
     common_parameters
 )
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGuard
 
 # Include the project controllers
 from modules.core.controllers import (
@@ -29,7 +29,7 @@ router = APIRouter(prefix="/organization", tags=["Organization"])
 
 @router.get("/",
         dependencies=[
-            Depends(AuthGaurd),
+            Depends(AuthGuard),
             Depends(common_parameters)
         ],
         name="get_organizations",
@@ -38,7 +38,7 @@ router = APIRouter(prefix="/organization", tags=["Organization"])
 async def index(
         commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get all organizations.
@@ -52,13 +52,13 @@ async def index(
     return await Controller().index(commons, request, current_user)
 
 @router.get("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_organization"
     )
 async def show(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get the organization with the given uid.
@@ -72,13 +72,13 @@ async def show(
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="create_organization"
     )
 async def create(
         payload: OrganizationCreateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Create a new organization with the given payload.
@@ -90,14 +90,14 @@ async def create(
         )
 
 @router.put("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="update_organization"
     )
 async def update(
         uid: str,
         payload: OrganizationUpdateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Update the organization with the given uid and payload.
@@ -109,13 +109,13 @@ async def update(
     )
 
 @router.delete("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="delete_organization"
     )
 async def delete(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Delete the organization with the given uid and payload.

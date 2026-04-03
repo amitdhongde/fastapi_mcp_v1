@@ -29,6 +29,7 @@ class BaseRepository(Generic[T]):
     async def get_all(
         self,
         skip: int = 0, limit: int = 100,
+        fields: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> list[T]:
         """
         Returns a list of model instances.
@@ -40,6 +41,9 @@ class BaseRepository(Generic[T]):
         """
         try:
             query = self._query(join_)
+            if fields is not None:
+                for field, value in fields.items():
+                    query = await self._get_by(query, field, value)
             query = query.offset(skip).limit(limit)
 
             if join_ is not None:

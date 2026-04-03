@@ -1,16 +1,19 @@
 """ Import the required modules """
-import logging
 from typing import List
-from fastapi import Request
+from starlette.requests import Request
 from pydantic import TypeAdapter, BaseModel
+import logging
 
 # Include the project models
+from modules.base.fastapi.dependencies.authentication import (
+        AuthGuard
+    )
 from modules.note.models import (
-    NoteCreateRequest,
-    NoteUpdateRequest,
-    NoteFullResponse,
-    NoteMinorResponse
-)
+        NoteCreateRequest,
+        NoteUpdateRequest,
+        NoteFullResponse,
+        NoteMinorResponse
+    )
 
 # include the project services
 from modules.base.services.base import BaseService
@@ -125,16 +128,29 @@ class NoteService(BaseService):
             self,
             commons: dict,
             request: Request,
-            ip_address: str
+            ip_address: str,
+            guard: AuthGuard
         ) -> List[NoteMinorResponse]:
         """ List all the objects """
         try:
+            # Create conditions for the query
+            conditions = {}
+            if guard is not None:
+                conditions["created_by"] = guard['user_id']
+
+            # Conditions for the query
+            if commons.get("q") is not None:
+                _query: list[str] = commons.get("q", {})
+                for data in _query:
+                    field, value = data.split("=")
+                    conditions[field] = value
+
             # Validate the payload
             response = await self.repository.get_all(
-                skip=commons.get("skip", 0),
-                limit=commons.get("limit", 100)
-            )
-            logger.debug(f"Note count: {len(response)}")
+                    skip=commons.get("skip", 0),
+                    limit=commons.get("limit", 100),
+                    fields=conditions
+                )
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the notes from IP address."

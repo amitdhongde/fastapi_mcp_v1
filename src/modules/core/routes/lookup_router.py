@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
-from modules.base.fastapi.dependencies.authentication import AuthGaurd
+from modules.base.fastapi.dependencies.authentication import AuthGuard
 
 # Include the project controllers
 from ..controllers.lookup_controller import LookupController as Controller
@@ -18,13 +18,13 @@ from ..models.organization.request import (
 router = APIRouter(prefix="/lookup", tags=["LookUp"])
 
 @router.get("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_lookups",
         operation_id="get_lookup_list"
     )
 async def index(
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get all lookup data.
@@ -33,14 +33,14 @@ async def index(
     return await Controller().index(request, current_user)
 
 @router.get("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="get_lookup",
         operation_id="get_lookup"
     )
 async def show(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Get the lookup data with the given uid.
@@ -49,14 +49,14 @@ async def show(
     return await Controller().show(uid, request, current_user)
 
 @router.post("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="create_lookup",
         operation_id="create_lookup"
     )
 async def create(
         payload: OrganizationCreateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Create a new lookup with the given payload.
@@ -68,7 +68,7 @@ async def create(
         )
 
 @router.put("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="update_lookup",
         operation_id="update_lookup"
     )
@@ -76,7 +76,7 @@ async def update(
         uid: str,
         payload: OrganizationUpdateRequest,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Update the lookup with the given uid and payload.
@@ -88,14 +88,14 @@ async def update(
     )
 
 @router.delete("/{uid}",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[Depends(AuthGuard)],
         name="delete_lookup",
         operation_id="delete_lookup"
     )
 async def delete(
         uid: str,
         request: Request,
-        auth: AuthGaurd = Depends(AuthGaurd)
+        auth: AuthGuard = Depends(AuthGuard)
     ) -> Any:
     """
     Delete the lookup with the given uid.
