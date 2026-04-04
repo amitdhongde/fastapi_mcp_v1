@@ -140,6 +140,9 @@ class AuthGuard:
         except Exception as e:
             raise e
 
+    def get_token_value(self, key: str) -> any:
+        return self.get_token_data().get(key)
+
     def __call__(self,
             request: Annotated[
                 HTTPAuthorizationCredentials,

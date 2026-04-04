@@ -1,16 +1,14 @@
 """ Import the required modules """
-from ipaddress import ip_address
+import logging
 from typing import List
 from starlette.requests import Request
-from pydantic import TypeAdapter, BaseModel
-import logging
+from pydantic import TypeAdapter
 
 # Include the project models
 from modules.base.fastapi.dependencies.authentication import (
         AuthGuard
     )
 from modules.note.models import (
-        NoteCreateRequest,
         NoteUpdateRequest,
         NoteFullResponse,
         NoteMinorResponse
@@ -51,12 +49,12 @@ class NoteService(BaseService):
         """ Create a new object """
         try :
             # Add the audit information to the payload
-            payload["organization_id"] = guard['org_id']
+            payload["organization_id"] = guard.get_token_value('org_id')
 
             # Validate the credentials
             response = await self.repository.create(
                     payload,
-                    guard['user_id']
+                    guard.get_token_value('user_id')
                 )
 
             if not response:
@@ -85,13 +83,13 @@ class NoteService(BaseService):
             # Build the conditions for the query
             conditions = {}
             if guard is not None:
-                conditions["created_by"] = guard['user_id']
+                conditions["created_by"] = guard.get_token_value('user_id')
 
             # Get the claim from storage
             response = await self.repository.update_by_uid(
                     uid, payload,
                     conditions=conditions,
-                    updated_by=guard['user_id']
+                    updated_by=guard.get_token_value('user_id')
                 )
             if not response:
                 raise EntityNotSavedException(
@@ -118,12 +116,12 @@ class NoteService(BaseService):
             # Build the conditions for the query
             conditions = {}
             if guard is not None:
-                conditions["created_by"] = guard['user_id']
+                conditions["created_by"] = guard.get_token_value('user_id')
 
             response = await self.repository.delete_by_uid(
                     uid,
                     conditions=conditions,
-                    deleted_by=guard['user_id']
+                    deleted_by=guard.get_token_value('user_id')
                 )
             if not response:
                 raise EntityNotFoundException(
@@ -155,7 +153,7 @@ class NoteService(BaseService):
             # Create conditions for the query
             conditions = {}
             if guard is not None:
-                conditions["created_by"] = guard['user_id']
+                conditions["created_by"] = guard.get_token_value('user_id')
 
             # Conditions for the query
             if commons.get("q") is not None:
@@ -168,7 +166,7 @@ class NoteService(BaseService):
             response = await self.repository.get_all(
                     skip=commons.get("skip", 0),
                     limit=commons.get("limit", 100),
-                    fields=conditions
+                    conditions=conditions
                 )
             if not response:
                 raise EntityNotFoundException(
@@ -193,10 +191,10 @@ class NoteService(BaseService):
             # Create conditions for the query
             conditions = {}
             if guard is not None:
-                conditions["created_by"] = guard['user_id']
+                conditions["created_by"] = guard.get_token_value('user_id')
 
             # Validate the payload
-            response = await self.repository.get_by_hash(uid)
+            response = await self.repository.get_by_hash(uid, conditions=conditions)
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the note"
