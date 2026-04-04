@@ -11,9 +11,9 @@ from modules.base.fastapi.dependencies.authentication import (
     )
 from modules.note.services import NoteService
 from modules.core.services import LookupService
-from modules.core.models.lookup import LookupFullResponse
 
 # Include the project models
+from modules.core.models.lookup import LookupFullResponse
 from modules.note.models import (
     NoteCreateRequest,
     NoteUpdateRequest

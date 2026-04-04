@@ -31,7 +31,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/token")
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        request: Request = Depends(Request),
+        request: Request,
         controller: Controller = Depends()
     ) -> Any:
     """ 
@@ -104,7 +104,7 @@ async def register(
 @router.post("/forgot-password")
 async def forgot_password(
         payload: ForgotPasswordRequest,
-        request: Request = Depends(Request),
+        request: Request,
         controller: Controller = Depends()
     ) -> Any:
     """
@@ -116,7 +116,7 @@ async def forgot_password(
 async def change_password(
         payload: ChangePasswordRequest,
         guard: Annotated[AuthGuard, Depends(get_auth_guard)],
-        request: Request = Depends(Request),
+        request: Request,
         controller: Controller = Depends()
     ) -> Any:
     """
@@ -130,7 +130,7 @@ async def change_password(
     )
 async def refresh_token(
         guard: Annotated[AuthGuard, Depends(get_auth_guard)],
-        request: Request = Depends(Request),
+        request: Request,
         controller: Controller = Depends()
     ) -> Any:
     """

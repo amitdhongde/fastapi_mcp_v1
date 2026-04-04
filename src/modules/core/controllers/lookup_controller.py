@@ -5,20 +5,12 @@ from pydantic import BaseModel
 # Include the project modules
 from modules.base.models.response import JsonSuccessResponse
 from modules.base.controller.base import BaseController
+from modules.base.fastapi.dependencies.authentication import (
+        AuthGuard
+    )
 
 # Include the project services
-from ..services.organization_service import OrganizationService as LookupService
-
-# Include the project models
-# from ..models.base import Auth
-# from ..models.request import (
-#     LoginRequest,
-#     RegisterRequest,
-#     ForgotPasswordRequest,
-#     ChangePasswordRequest,
-#     ResetPasswordRequest
-# )
-
+from modules.core.services import LookupService
 
 class LookupController(BaseController):
     """
@@ -31,43 +23,43 @@ class LookupController(BaseController):
         super().__init__()
         self.service = LookupService()
 
-
     async def index(
             self,
+            commons: dict,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
-        Get all the lookup.
+        Get all the lookup values.
         """
         try:
-            # Get the ip address from the request
-            ip_address = request.client.host
-
-            response: BaseModel = await self.service.index(ip_address)
+            # Get the list of notes from the service
+            response: BaseModel = await self.service.list(
+                    commons=commons,
+                    request=request,
+                    guard=guard
+                )
 
             # Send data from the service
             return JsonSuccessResponse(
-                content=response
-            )
+                    content=response
+                )
         except Exception as e:
             raise e
-
 
     async def show(
             self,
             uid: str,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
         Get the lookup with the given uid.
         """
         try:
-            # Get the ip address from the request
-            ip_address = request.client.host
-
-            response: BaseModel = await self.service.show(
+            # Get the note from the service
+            response: BaseModel = await self.service.get(
                 uid=uid,
-                ip_address=ip_address
+                request=request,
+                guard=guard
             )
 
             # Send data from the service
@@ -77,12 +69,11 @@ class LookupController(BaseController):
         except Exception as e:
             raise e
 
-
     async def create(
             self,
             payload: BaseModel,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
         Create a new lookup with the given payload.
         """
@@ -91,7 +82,7 @@ class LookupController(BaseController):
             ip_address = request.client.host
 
             response: BaseModel = await self.service.create(
-                payload, ip_address, current_user
+                payload, ip_address, guard
             )
 
             # Send data from the service
@@ -107,7 +98,7 @@ class LookupController(BaseController):
             uid: str,
             payload: BaseModel,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
         Update the lookup with the given uid and payload.
         """
@@ -119,7 +110,7 @@ class LookupController(BaseController):
                 uid=uid,
                 payload=payload,
                 ip_address=ip_address,
-                current_user=current_user
+                guard=guard
             )
 
             # Send data from the service
@@ -134,7 +125,7 @@ class LookupController(BaseController):
             self,
             uid: str,
             request: Request,
-            current_user: BaseModel) -> JsonSuccessResponse:
+            guard: AuthGuard) -> JsonSuccessResponse:
         """
         Delete the lookup data with the given uid.
         """
@@ -144,7 +135,8 @@ class LookupController(BaseController):
 
             response: BaseModel = await self.service.delete(
                 uid=uid,
-                ip_address=ip_address
+                ip_address=ip_address,
+                guard=guard
             )
 
             # Send data from the service
