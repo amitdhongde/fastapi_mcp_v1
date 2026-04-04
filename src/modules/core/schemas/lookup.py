@@ -1,22 +1,21 @@
 """ Import the required modules """
 from typing import Optional
 from sqlalchemy import (
-    Boolean,
-    Integer,
-    String,
-    BigInteger
-)
+        Boolean,
+        Integer,
+        String,
+        BigInteger
+    )
 from sqlalchemy.orm import (Mapped, mapped_column)
 
 # Import Base Schema classes & models
 from modules.base.db.base import (
-    BaseDB,
-    BaseSchemaAuditLog
-)
+        BaseDB,
+        BaseSchemaAuditLog
+    )
 
 # Import Enums
 from modules.core.enums.lookup import LookupMaster
-
 
 class LookupSchema(BaseSchemaAuditLog, BaseDB):
     """

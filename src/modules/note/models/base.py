@@ -6,7 +6,6 @@ from pydantic import (
 
 # Import the project models
 from modules.base.models import AppBaseModelWithHashAndAuditLog
-from modules.core.models.organization.organization import Organization
 
 class Note(AppBaseModelWithHashAndAuditLog):
     """
@@ -20,15 +19,17 @@ class Note(AppBaseModelWithHashAndAuditLog):
         )
     title: str = Field(default=None, description="Title of the note.",
             examples=["Meeting Notes", "Project Update"],
+            max_length=128,
             json_schema_extra={"nullable": False}
         )
     content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."],
+            max_length=8000,
             json_schema_extra={"nullable": False}
         )
 
     def __str__(self):
-        return f'Note: {str(self.id)} - {self.note}'
+        return f'Note: {str(self.id)} - {self.title}'
 
     model_config = ConfigDict(
         extra='allow',

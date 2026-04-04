@@ -184,14 +184,13 @@ class BaseRepository(Generic[T]):
         """
         try:
             # Update the model instance with audit fields
-            model.updated_at = lambda: datetime.now(timezone.utc)
             model.updated_by = updated_by
 
             self.session.add(model)
             await self.session.commit()
             await self.session.flush()
             await self.session.refresh(model)
-            await self.session.expire(model)
+            # await self.session.expire(model)
 
             return model
         except (EntityNotSavedException, Exception) as e:

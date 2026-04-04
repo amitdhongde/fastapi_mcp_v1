@@ -3,19 +3,32 @@ import datetime
 import time
 from typing_extensions import Self
 from pydantic import (
-    BaseModel, Field, model_validator
+    BaseModel,
+    ConfigDict, Field, 
+    model_validator
 )
+
+from modules.note.models import Note
 
 class NoteBaseModel(BaseModel):
     """
     Base model for note models.
     """
+    entity_type_id: int = Field(default=0, description="Type of the entity.",
+            json_schema_extra={"nullable": True}
+        )
+    reference_id: int = Field(default=0, description="ID of the reference entity.",
+            examples=[1], le=1,
+            json_schema_extra={"nullable": True}
+        )
     title: str = Field(default=None, description="Title of the note.",
             examples=["Meeting Notes", "Project Update"],
+            max_length=128,
             json_schema_extra={"nullable": False}
         )
     content: str = Field(default=None, description="Text content of the note.",
-            examples=["This is a note."], max_length=8000,
+            examples=["This is a note."],
+            max_length=8000,
             json_schema_extra={"nullable": False}
         )
 
@@ -38,7 +51,7 @@ class NoteBaseModel(BaseModel):
         """
         Validate the content field to check if it is not empty.
         """
-        if not self.content or self.content.strip() == "":
+        if not self.content:
             raise ValueError('Content cannot be empty')
         return self
 
@@ -47,7 +60,9 @@ class NoteCreateRequest(NoteBaseModel):
     """
     Model for note create request.
     """
-    pass
+    reference_id: int = Field(default=0, description="ID of the reference entity.",
+            le=1, json_schema_extra={"nullable": False}
+        )
 
 class NoteUpdateRequest(NoteBaseModel):
     """

@@ -31,12 +31,15 @@ class Lookup(AppBaseModelWithAuditLog):
             examples=["organization_type"]
         )
 
-    order_by: int = Field(default=0, description="Order By",
-            exclude=False, examples=[1]
+    is_default: bool = Field(default=False, description="Is Default",
+            exclude=False, examples=[False]
         )
-    is_editable: bool = Field(default=True, description="Is Editable",
+    is_secure: bool = Field(default=True, description="Is Secure",
             exclude=False, examples=[True]
         )
+    order_by: int = Field(default=0, description="Order By",
+            exclude=False, examples=[1]
+        )    
 
     model_config = ConfigDict(
         extra='forbid',

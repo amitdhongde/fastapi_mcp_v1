@@ -48,9 +48,6 @@ class NoteService(BaseService):
             guard: AuthGuard) -> NoteFullResponse:
         """ Create a new object """
         try :
-            # Add the audit information to the payload
-            payload["organization_id"] = guard.get_token_value('org_id')
-
             # Validate the credentials
             response = await self.repository.create(
                     payload,

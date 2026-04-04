@@ -3,13 +3,15 @@ import logging
 from starlette.requests import Request
 from pydantic import BaseModel
 
+# Include the project dependencies
 from modules.base.controller import BaseController
 from modules.base.models.response import JsonSuccessResponse
 from modules.base.fastapi.dependencies.authentication import (
         AuthGuard
     )
-
 from modules.note.services import NoteService
+from modules.core.services import LookupService
+from modules.core.models.lookup import LookupFullResponse
 
 # Include the project models
 from modules.note.models import (
@@ -25,6 +27,7 @@ class NoteController(BaseController):
     def __init__(self):
         super().__init__()
         self.service = NoteService()
+        self.lookup_service = LookupService()
 
     async def index(
             self,
@@ -79,8 +82,18 @@ class NoteController(BaseController):
             guard: AuthGuard) -> JsonSuccessResponse:
         """ Create a new note for the current user """
         try:
+            # Fetch the entity_type from request context
+            entity_type = request.scope.get("entity_type", "entity_type_organization")
+            entity_type_lookup: LookupFullResponse = await self.lookup_service.get_by_key(
+                    key=entity_type
+                )
+
             # Convert the payload to dict
             payload = payload.model_dump()
+
+            # Add the additional information to the payload
+            payload["organization_id"] = guard.get_token_value('org_id')
+            payload["entity_type_id"] = entity_type_lookup.id
 
             response: BaseModel = await self.service.create(
                 payload,

@@ -1,16 +1,11 @@
 """ Import the required modules """
-from typing import Annotated, Self
-
-from datetime import date
 from pydantic import (
     ConfigDict,
-    Field,
-    computed_field
+    Field
 )
 
 from modules.core.models.organization import OrganizationMinor
 from modules.core.models.lookup import LookupMinor
-from modules.user.models import UserMinor
 from .base import Note
 
 class NoteFullResponse(Note):

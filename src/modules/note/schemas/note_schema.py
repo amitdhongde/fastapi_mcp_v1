@@ -1,24 +1,25 @@
 """ Import the required modules """
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
-from modules.core.schemas import (
-    OrganizationSchema,
-    LookupSchema
-)
 from sqlalchemy import (
-    Boolean,
-    Integer,
-    String,
-    BigInteger,
-    ForeignKey
-)
+        Boolean,
+        String,
+        BigInteger,
+        ForeignKey
+    )
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
+
+# Include the project schemas
+from modules.core.schemas import (
+        OrganizationSchema,
+        LookupSchema
+    )
 
 # Import Base Schema classes & models
 from modules.base.db.base import (
-    BaseDB,
-    BaseSchemaUUIDAuditLogDeleteLog
-)
+        BaseDB,
+        BaseSchemaUUIDAuditLogDeleteLog
+    )
 
 # Import Enums
 from modules.core.enums.lookup import LookupMaster
@@ -30,9 +31,9 @@ LOOKUPS_FK = 'lookups.id'
 
 if TYPE_CHECKING:
     from modules.core.schemas import (
-        LookupSchema,
-        OrganizationSchema
-    )
+            LookupSchema,
+            OrganizationSchema
+        )
 
 def relationship_back_populates_organization() -> OrganizationSchema:
     from modules.core.schemas import OrganizationSchema

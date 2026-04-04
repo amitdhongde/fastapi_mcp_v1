@@ -1,9 +1,15 @@
 from .lookup import (
-    Lookup,
-    LookupMinor
-)
+        Lookup,
+        LookupMinor
+    )
+from .response import (
+        LookupFullResponse,
+        LookupMinorResponse
+    )
 
 __all__ = [
     "Lookup",
-    "LookupMinor"
+    "LookupMinor",
+    "LookupFullResponse",
+    "LookupMinorResponse"
 ]
