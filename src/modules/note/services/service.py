@@ -1,4 +1,5 @@
 """ Import the required modules """
+from ipaddress import ip_address
 from typing import List
 from starlette.requests import Request
 from pydantic import TypeAdapter, BaseModel
@@ -45,19 +46,18 @@ class NoteService(BaseService):
 
     async def create(
             self, payload: dict,
-            ip_address: str,
-            current_user: BaseModel) -> NoteFullResponse:
+            request: Request,
+            guard: AuthGuard) -> NoteFullResponse:
         """ Create a new object """
         try :
-            print(payload)
-            # add the user id to the payload
-            payload["organization_id"] = 1
-            payload["created_by"] = current_user.id
+            # Add the audit information to the payload
+            payload["organization_id"] = guard['org_id']
 
             # Validate the credentials
             response = await self.repository.create(
-                payload
-            )
+                    payload,
+                    guard['user_id']
+                )
 
             if not response:
                 raise EntityNotSavedException(
@@ -65,7 +65,8 @@ class NoteService(BaseService):
                 )
 
             # Validate the response
-            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
+            model: NoteFullResponse = \
+                TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful creation
             NoteCreatedEvent().raise_event(model)
@@ -77,21 +78,29 @@ class NoteService(BaseService):
     async def update(
             self, uid: str,
             payload: NoteUpdateRequest,
-            ip_address: str,
-            current_user: BaseModel) -> NoteFullResponse:
+            request: Request,
+            guard: AuthGuard) -> NoteFullResponse:
         """ Update the model """
         try:
+            # Build the conditions for the query
+            conditions = {}
+            if guard is not None:
+                conditions["created_by"] = guard['user_id']
+
             # Get the claim from storage
-            response = await self.repository.update_by_hash(
-                uid, payload, ip_address, current_user
-            )
+            response = await self.repository.update_by_uid(
+                    uid, payload,
+                    conditions=conditions,
+                    updated_by=guard['user_id']
+                )
             if not response:
                 raise EntityNotSavedException(
                     message="Unable to update the note"
                 )
 
             # Validate the response
-            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
+            model: NoteFullResponse = \
+                TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful update
             NoteUpdatedEvent().raise_event(model)
@@ -102,23 +111,31 @@ class NoteService(BaseService):
 
     async def delete(
             self, uid: str,
-            ip_address: str,
-            current_user: BaseModel) -> NoteFullResponse:
+            request: Request,
+            guard: AuthGuard) -> NoteFullResponse:
         """ Delete the model """
         try:
-            response = await self.repository.delete_by_hash(
-                uid, ip_address, current_user
-            )
+            # Build the conditions for the query
+            conditions = {}
+            if guard is not None:
+                conditions["created_by"] = guard['user_id']
+
+            response = await self.repository.delete_by_uid(
+                    uid,
+                    conditions=conditions,
+                    deleted_by=guard['user_id']
+                )
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to delete the note"
                 )
 
             # Validate the response
-            model: NoteFullResponse = TypeAdapter(NoteFullResponse).validate_python(response)
+            model: NoteFullResponse = \
+                TypeAdapter(NoteFullResponse).validate_python(response)
 
             # Raise event on successful deletion
-            NoteDeletedEvent().raise_event(model)            
+            NoteDeletedEvent().raise_event(model)
 
             return model
         except Exception as e:
@@ -128,11 +145,13 @@ class NoteService(BaseService):
             self,
             commons: dict,
             request: Request,
-            ip_address: str,
             guard: AuthGuard
         ) -> List[NoteMinorResponse]:
         """ List all the objects """
         try:
+            # Get the ip address from the request
+            ip_address = request.client.host if request is not None else "0.0.0.0"
+
             # Create conditions for the query
             conditions = {}
             if guard is not None:
@@ -166,16 +185,21 @@ class NoteService(BaseService):
 
     async def get(
             self,
-            hash: str,
-            ip_address: str
-        ) -> NoteFullResponse:
+            uid: str,
+            request: Request,
+            guard: AuthGuard) -> NoteFullResponse:
         """ Get the object """
         try:
+            # Create conditions for the query
+            conditions = {}
+            if guard is not None:
+                conditions["created_by"] = guard['user_id']
+
             # Validate the payload
-            response = await self.repository.get_by_hash(hash)
+            response = await self.repository.get_by_hash(uid)
             if not response:
                 raise EntityNotFoundException(
-                    message="Unable to get the note from IP address = " + ip_address
+                    message="Unable to get the note"
                 )
 
             # Validate the response

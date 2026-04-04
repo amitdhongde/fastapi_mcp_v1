@@ -2,6 +2,7 @@
 import logging
 from functools import reduce
 from typing import Any, Generic, Type, TypeVar
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import Select, func
@@ -29,7 +30,7 @@ class BaseRepository(Generic[T]):
     async def get_all(
         self,
         skip: int = 0, limit: int = 100,
-        fields: dict[str, Any] | None = None,
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> list[T]:
         """
         Returns a list of model instances.
@@ -41,8 +42,8 @@ class BaseRepository(Generic[T]):
         """
         try:
             query = self._query(join_)
-            if fields is not None:
-                for field, value in fields.items():
+            if conditions is not None:
+                for field, value in conditions.items():
                     query = await self._get_by(query, field, value)
             query = query.offset(skip).limit(limit)
 
@@ -57,6 +58,7 @@ class BaseRepository(Generic[T]):
         self,
         field: str,
         value: Any,
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None,
         unique: bool = False) -> T|None:
         """
@@ -71,6 +73,10 @@ class BaseRepository(Generic[T]):
             query = self._query(join_)
             query = await self._get_by(query, field, value)
 
+            if conditions is not None:
+                for field, value in conditions.items():
+                    query = await self._get_by(query, field, value)
+
             if join_ is not None:
                 query = await self._maybe_join(query, join_)
             # if unique:
@@ -82,19 +88,20 @@ class BaseRepository(Generic[T]):
 
     async def get_by_fields(
         self,
-        fields: dict[str, Any],
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> list[T]:
         """
-        Returns a list of model instances matching the fields.
+        Returns a list of model instances matching the conditions.
 
-        :param fields: The fields to match.
+        :param conditions: The conditions to match.
         :param join_: The joins to make.
         :return: A list of model instances.
         """
         try:
             query = self._query(join_)
-            for field, value in fields.items():
-                query = await self._get_by(query, field, value)
+            if conditions is not None:
+                for field, value in conditions.items():
+                    query = await self._get_by(query, field, value)
 
             if join_ is not None:
                 query = await self._maybe_join(query, join_)
@@ -107,19 +114,19 @@ class BaseRepository(Generic[T]):
 
     async def create(
         self,
-        attributes: dict[str, Any] = None) -> T:
+        attributes: dict[str, Any],
+        created_by: int = 0) -> T:
         """
         Creates the model instance.
 
         :param attributes: The attributes to create the model with.
+        :param created_by: The user id to create the model with.
         :return: The created model instance.
         """
         try:
-            if attributes is None:
-                attributes = {}
-
             # Create the model instance
             model = self.model_class(**attributes)
+            model.created_by = created_by
 
             # Add the model instance to the session
             self.session.add(model)
@@ -129,28 +136,56 @@ class BaseRepository(Generic[T]):
             # await self.session.expire(model)
 
             return model
-        except EntityNotSavedException|Exception as e:
+        except (EntityNotSavedException, Exception) as e:
+            logger.error(f"Error creating {self.model_class.__tablename__}: {e}")
+            await self.session.rollback()
             raise e
         finally:
             await self.session.close()
             await self.session.remove()
 
-    async def update(
-        self,
-        model: T,
-        user_id: int = 0) -> T:
+    async def update_by_uid(
+        self, uid: UUID,
+        attributes: dict[str, Any],
+        conditions: dict[str, Any] | None = None,
+        updated_by: int = 0) -> T:
         """
-        Updates the model instance.
-        :param model: The model instance to update.
-        :param user_id: The user id to update.
+        Updates the model instance matching the uid.
+        :param uid: The uid to match.
+        :param attributes: The attributes to update the model with.
+        :param updated_by: The user id to update.
         :return: The updated model instance.
         """
         try:
+            model = await self.get_by_hash(uid, conditions=conditions)
+            if not model:
+                raise EntityNotFoundException(
+                    f"{self.model_class.__tablename__.title()} with uid: {uid} does not exist"
+                )
+
+            # Update the model instance with the new attributes
             for key, value in attributes.items():
                 setattr(model, key, value)
 
-            model.updated_at = func.now()
-            model.updated_by = user_id
+            return await self.update(model, updated_by)
+        except (EntityNotSavedException, Exception) as e:
+            logger.error(f"Error updating {self.model_class.__tablename__} with uid {uid}: {e}")
+            raise e
+
+    async def update(
+        self,
+        model: T,
+        updated_by: int = 0) -> T:
+        """
+        Updates the model instance.
+        :param model: The model instance to update.
+        :param updated_by: The user id to update.
+        :return: The updated model instance.
+        """
+        try:
+            # Update the model instance with audit fields
+            model.updated_at = lambda: datetime.now(timezone.utc)
+            model.updated_by = updated_by
 
             self.session.add(model)
             await self.session.commit()
@@ -159,12 +194,41 @@ class BaseRepository(Generic[T]):
             await self.session.expire(model)
 
             return model
-        except EntityNotSavedException as e:
+        except (EntityNotSavedException, Exception) as e:
             await self.session.rollback()
             raise e
         finally:
             await self.session.close()
             await self.session.remove()
+
+    async def delete_by_uid(
+        self, uid: UUID,
+        conditions: dict[str, Any] | None = None,
+        is_hard_delete: bool = False,
+        deleted_by: int = 0) -> None:
+        """
+        Deletes the model instance matching the uid.
+
+        :param uid: The uid to match.
+        :param is_hard_delete: Whether to hard delete the model instance.
+        :param deleted_by: The user id to delete.
+        :return: None
+        """
+        try:
+            model = await self.get_by_hash(uid, conditions=conditions)
+            if not model:
+                raise EntityNotFoundException(
+                    f"{self.model_class.__tablename__.title()} with uid: {uid} does not exist"
+                )
+
+            # Delete the model instance
+            model.deleted_at = lambda: datetime.now(timezone.utc)
+            model.deleted_by = deleted_by
+
+            await self.delete(model, is_hard_delete=is_hard_delete)
+        except (EntityNotSavedException, Exception) as e:
+            logger.error(f"Error deleting {self.model_class.__tablename__} with uid {uid}: {e}")
+            raise e
 
     async def delete(
         self,
@@ -187,17 +251,21 @@ class BaseRepository(Generic[T]):
     async def get_by_id(
         self,
         id_: int,
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> T:
         """
         Returns the model instance matching the id.
 
         :param id_: The id to match.
+        :param conditions: The conditions to match.
         :param join_: The joins to make.
         :return: The model instance.
         """
         try:
             db_obj = await self.get_by(
-                field="id", value=id_, join_=join_, unique=True
+                field="id", value=id_,
+                conditions=conditions,
+                join_=join_, unique=True
             )
             if not db_obj:
                 raise EntityNotFoundException(
@@ -213,18 +281,23 @@ class BaseRepository(Generic[T]):
     async def get_by_hash(
         self,
         uid: UUID,
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> T:
         """
         Returns the model instance matching the uid.
 
         :param uid: The uid to match.
+        :param conditions: The conditions to match.
         :param join_: The joins to make.
         :return: The model instance.
         """
         try:
             db_obj = await self.get_by(
-                field="hash", value=uid, join_=join_, unique=True
-            )
+                    field="hash", value=uid,
+                    conditions=conditions,
+                    join_=join_, unique=True
+                )
+
             if not db_obj:
                 raise EntityNotFoundException(
                     f"{self.model_class.__tablename__.title()} with hash: {uid} does not exist"
@@ -238,17 +311,21 @@ class BaseRepository(Generic[T]):
     async def get_by_uuid(
         self,
         uuid: UUID,
+        conditions: dict[str, Any] | None = None,
         join_: set[str] | None = None) -> T:
         """
         Returns the model instance matching the uuid.
 
         :param uuid: The uuid to match.
+        :param conditions: The conditions to match.
         :param join_: The joins to make.
         :return: The model instance.
         """
         try:
             db_obj = await self.get_by(
-                field="uuid", value=uuid, join_=join_, unique=True
+                field="uuid", value=uuid,
+                conditions=conditions,
+                join_=join_, unique=True
             )
             if not db_obj:
                 raise EntityNotFoundException(

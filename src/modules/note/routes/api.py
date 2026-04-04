@@ -47,7 +47,7 @@ async def index(
     """
     Get all note data.
     """
-    return await controller.index(commons, request, guard.get_token_data())
+    return await controller.index(commons, request, guard)
 
 @router.get("/{uid}",
         dependencies=[Depends(get_auth_guard)],
@@ -64,8 +64,7 @@ async def show(
     """
     Get the note data with the given UID.
     """
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await controller.show(uid, request, current_user)
+    return await controller.show(uid, request, guard)
 
 @router.post("/",
         dependencies=[Depends(get_auth_guard)],
@@ -82,12 +81,9 @@ async def create(
     """
     Create a new note with the given payload.
     """
-    #current_user = guard.current_user()
-    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-
     return await controller.create(
             payload, request,
-            current_user
+            guard
         )
 
 @router.put("/{uid}",
@@ -106,11 +102,10 @@ async def update(
     """
     Update the note with the given UID and payload.
     """
-    current_user = guard.current_user()
     return await controller.update(
-        uid, payload, request,
-        current_user
-    )
+            uid, payload, request,
+            guard
+        )
 
 @router.delete("/{uid}",
         dependencies=[Depends(get_auth_guard)],
@@ -127,8 +122,7 @@ async def delete(
     """
     Delete the note with the given UID.
     """
-    current_user = guard.current_user()
     return await controller.delete(
-        uid, request,
-        current_user
-    )
+            uid, request,
+            guard
+        )
