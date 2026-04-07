@@ -3,33 +3,29 @@ import datetime
 import time
 from typing_extensions import Self
 from pydantic import (
-    BaseModel,
-    ConfigDict, Field, 
-    model_validator
-)
+        Field,
+        model_validator
+    )
 
-from modules.note.models import Note
+# Include the project models
+from modules.base.models import CustomBaseModel
 
-class NoteBaseModel(BaseModel):
+class NoteBaseModel(CustomBaseModel):
     """
     Base model for note models.
     """
-    entity_type_id: int = Field(default=0, description="Type of the entity.",
-            json_schema_extra={"nullable": True}
+    entity_type_id: int = Field(default=0, description="Type of the entity."
         )
     reference_id: int = Field(default=0, description="ID of the reference entity.",
-            examples=[1], le=1,
-            json_schema_extra={"nullable": True}
+            examples=[1], le=1
         )
     title: str = Field(default=None, description="Title of the note.",
             examples=["Meeting Notes", "Project Update"],
-            max_length=128,
-            json_schema_extra={"nullable": False}
+            max_length=128
         )
     content: str = Field(default=None, description="Text content of the note.",
             examples=["This is a note."],
-            max_length=8000,
-            json_schema_extra={"nullable": False}
+            max_length=8000
         )
 
     @model_validator(mode='after')
@@ -60,12 +56,11 @@ class NoteCreateRequest(NoteBaseModel):
     """
     Model for note create request.
     """
-    reference_id: int = Field(default=0, description="ID of the reference entity.",
-            le=1, json_schema_extra={"nullable": False}
+    reference_id: int = Field(default=0, description="Reference Id of the entity.",
+            le=1
         )
 
 class NoteUpdateRequest(NoteBaseModel):
     """
     Model for note update request.
     """
-    pass

@@ -21,7 +21,6 @@ class CustomBaseModel(BaseModel):
             from_attributes=True,
             use_enum_values=True,
             extra='ignore',  # Ignore extra fields during model initialization
-            use_enum_values=True
         )
 
 class ApplicationBaseModel(CustomBaseModel):
