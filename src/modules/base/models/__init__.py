@@ -1,4 +1,5 @@
 from .base import (
+    CustomBaseModel,
     ApplicationBaseModel,
     AppBaseModelWithHash,
     AppBaseModelWithAuditLog,
@@ -13,6 +14,7 @@ from .response import (
 )
 
 __all__ = [
+    "CustomBaseModel",
     "ApplicationBaseModel",
     "AppBaseModelWithHash",
     "AppBaseModelWithAuditLog",

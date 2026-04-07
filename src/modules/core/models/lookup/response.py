@@ -1,6 +1,5 @@
 """ Import the required modules """
 from pydantic import (
-    ConfigDict,
     Field
 )
 
@@ -13,19 +12,9 @@ class LookupFullResponse(Lookup):
     """
     order_by: int = Field(exclude=True)
 
-    model_config = ConfigDict(
-        extra='allow',
-        from_attributes=True
-    )
-
 class LookupMinorResponse(Lookup):
     """
     Lookup model for the application.
     """
     id: int = Field(exclude=True)
     order_by: int = Field(exclude=True)
-
-    model_config = ConfigDict(
-        extra='allow',
-        from_attributes=True
-    )

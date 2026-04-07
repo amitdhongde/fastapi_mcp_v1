@@ -1,7 +1,5 @@
 """ Import the python standard libraries """
-from typing import Annotated, Self
-
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 # Import the project models
 from modules.base.models import (
@@ -39,13 +37,7 @@ class Lookup(AppBaseModelWithAuditLog):
         )
     order_by: int = Field(default=0, description="Order By",
             exclude=False, examples=[1]
-        )    
-
-    model_config = ConfigDict(
-        extra='forbid',
-        populate_by_name=True,
-        from_attributes=True
-    )
+        )
 
 class LookupMinor(ApplicationBaseModel):
     """
@@ -58,13 +50,7 @@ class LookupMinor(ApplicationBaseModel):
     display_value: str = Field(default=None, description="Value",
             max_length=128, examples=["My Lookup Value"]
         )
-    lookup_type: LookupMaster = Field(default=None,
+    lookup_type: LookupMaster = Field(default=LookupMaster.DATA_TYPE,
             description="Lookup Type",
             examples=["organization_type"]
         )
-
-    model_config = ConfigDict(
-        extra='forbid',
-        populate_by_name=True,
-        from_attributes=True
-    )

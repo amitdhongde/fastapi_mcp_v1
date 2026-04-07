@@ -1,7 +1,5 @@
 """ Import the python standard libraries """
-from typing import Annotated, Self
-
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 # Import the project models
 from modules.base.models import AppBaseModelWithHashAndAuditLog
@@ -10,7 +8,6 @@ class Organization(AppBaseModelWithHashAndAuditLog):
     """
     Organization model for the application.
     """
-
     display_name: str = Field(default=None, description="Display Name",
             max_length=128, examples=["My Organization"]
         )
@@ -18,12 +15,6 @@ class Organization(AppBaseModelWithHashAndAuditLog):
             exclude=True, max_length=128,
             examples=["My Organization Inc"]
         )
-
-    model_config = ConfigDict(
-        extra='forbid',
-        populate_by_name=True,
-        from_attributes=True
-    )
 
 class OrganizationMinor(Organization):
     """

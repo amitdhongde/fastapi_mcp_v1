@@ -11,7 +11,20 @@ from pydantic import (
 
 T = TypeVar('T')
 
-class ApplicationBaseModel(BaseModel):
+class CustomBaseModel(BaseModel):
+    """
+    Base model for the application.
+    """
+    model_config = ConfigDict(
+            validate_by_name=True,
+            validate_by_alias=True,
+            from_attributes=True,
+            use_enum_values=True,
+            extra='ignore',  # Ignore extra fields during model initialization
+            use_enum_values=True
+        )
+
+class ApplicationBaseModel(CustomBaseModel):
     """
     Base model for the application.
     """
@@ -24,7 +37,7 @@ class AppBaseModelWithHash(ApplicationBaseModel):
     """
     Base model for the application with hash.
     """
-    hash: UUID = Field(default_factory=lambda: uuid1(), description="Hash")
+    hash: UUID = Field(default_factory=uuid1, description="Hash")
 
     @field_serializer('hash', when_used='json')
     def serialize_hash(self, value: UUID) -> str:
@@ -63,7 +76,7 @@ class AppBaseModelWithAuditLog(ApplicationBaseModel):
     @computed_field
     @property
     def last_modified_at(self) -> datetime:
-        return_value: datetime = None
+        return_value: datetime
 
         if self.deleted_at:
             return_value = self.deleted_at
@@ -79,14 +92,14 @@ class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
     """
     Base model for the application with hash.
     """
-    hash: UUID = Field(default_factory=lambda: uuid1(), description="Hash")
+    hash: UUID = Field(default_factory=uuid1, description="Hash")
 
     @field_serializer('hash', when_used='json')
     def serialize_hash(self, value: UUID) -> str:
         return str(value)
 
 
-class GenericResponse(BaseModel, Generic[T]):
+class GenericResponse(CustomBaseModel, Generic[T]):
     """
     Generic response model for API responses.
     """

@@ -1,17 +1,19 @@
 """ Import the required modules """
-from typing_extensions import Self
 from pydantic import (
-    BaseModel, Field, model_validator, 
-    TypeAdapter, EmailStr
-)
+        ConfigDict, Field
+    )
 
-# Import configuration file
-from modules.base.config import config
+# Include the project models
+from modules.base.models import CustomBaseModel
 
-class OrganizationBaseModel(BaseModel):
+class OrganizationBaseModel(CustomBaseModel):
     """
     Base model for organization models.
     """
+    model_config = ConfigDict(
+            extra='allow',
+        )
+
     display_name: str = Field(default=None, description="Display Name",
             max_length=128, examples=["My Organization"]
         )
@@ -20,32 +22,13 @@ class OrganizationBaseModel(BaseModel):
             examples=["My Organization Inc"]
         )
 
-    @model_validator(mode='after')
-    def check_username(self) -> Self:
-        """
-        Validate the username field to check if it is a valid email or phone number.
-        """
-        # Check the username is for empty, email and phone number
-        if '@' in self.username: # Email Validation
-            ta_email = TypeAdapter(EmailStr)
-            if not ta_email.validate_python(self.username):
-                raise ValueError('Invalid email')
-        elif str(self.username).isdigit(): # Phone Number Validation
-            if len(self.username) < 10 :
-                raise ValueError('Invalid phone number')
-        else:
-            raise ValueError('Invalid username')
-        return self
-
 # Define the Create model
 class OrganizationCreateRequest(OrganizationBaseModel):
     """
     Model for organization create request.
     """
-    pass
 
 class OrganizationUpdateRequest(OrganizationBaseModel):
     """
     Model for organization update request.
     """
-    pass
