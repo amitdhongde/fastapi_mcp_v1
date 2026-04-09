@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import Select, func
-from sqlalchemy.sql.expression import select
+from sqlalchemy.sql.expression import or_, select
 
 from modules.base.db.base import BaseDB
 from modules.base.exceptions import (
@@ -44,8 +44,15 @@ class BaseRepository(Generic[T]):
             query = self._query(join_)
             if conditions is not None:
                 for field, value in conditions.items():
-                    query = await self._get_by(query, field, value)
+                    if field == "or_":
+                        query = await self._get_by_or(query, value)
+                    else:
+                        query = await self._get_by(query, field, value)
+
             query = query.offset(skip).limit(limit)
+
+            # Query degugging
+            logger.debug(f"Query: {query}")
 
             if join_ is not None:
                 return await self._all_unique(query)
@@ -452,6 +459,30 @@ class BaseRepository(Generic[T]):
         :return: The filtered query.
         """
         return query.where(getattr(self.model_class, field) == value)
+
+    async def _get_by_or(self, query: Select, conditions: list[tuple]) -> Select:
+        """
+        Returns the query filtered by the given column using OR condition.
+
+        :param query: The query to filter.
+        :param conditions: The list of conditions to filter by.
+        :return: The filtered query.
+        """
+        if not isinstance(conditions, list) and len(conditions) < 2:
+            return query
+
+        query_condition = []
+        for condition in conditions:
+            if not isinstance(condition, tuple) and len(condition) < 3:
+                raise ValueError(f"Invalid condition: {condition}")
+
+            # Assign the column, operator and value from the condition tuple
+            field, operator, value = condition
+
+            column = getattr(self.model_class, field)
+            query_condition.append(column == value)
+
+        return query.where(or_(*query_condition))
 
     async def _soft_delete(self, model: T, user_id: int=0) -> None:
         """

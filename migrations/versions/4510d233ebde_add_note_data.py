@@ -31,13 +31,13 @@ def upgrade() -> None:
         return  # Skip data insertion in production environment
 
     note_data: List[dict] = []
-    
+
     # Generate initial note data
     for i in range(100):
         note_data.append({
             'organization_id': 1,
             'entity_type_id': 1,
-            'reference_id': 1,
+            'reference_id': i,
             'title': fake.sentence(nb_words=6),
             'content': fake.paragraph(nb_sentences=3),
             'is_pinned': random.choice([True, False]),

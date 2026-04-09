@@ -9,20 +9,11 @@ from sqlalchemy import (
     )
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
-# Include the project schemas
-from modules.core.schemas import (
-        OrganizationSchema,
-        LookupSchema
-    )
-
 # Import Base Schema classes & models
 from modules.base.db.base import (
         BaseDB,
         BaseSchemaUUIDAuditLogDeleteLog
     )
-
-# Import Enums
-from modules.core.enums.lookup import LookupMaster
 
 # Constants for foreign key references
 ORGANIZATIONS_FK = 'organizations.id'

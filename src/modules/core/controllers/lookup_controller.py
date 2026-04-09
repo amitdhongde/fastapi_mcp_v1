@@ -78,12 +78,10 @@ class LookupController(BaseController):
         Create a new lookup with the given payload.
         """
         try:
-            # Get the ip address from the request
-            ip_address = request.client.host
-
+            # Get the details from the service
             response: BaseModel = await self.service.create(
-                payload, ip_address, guard
-            )
+                    payload, request, guard
+                )
 
             # Send data from the service
             return JsonSuccessResponse(
@@ -91,7 +89,6 @@ class LookupController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def update(
             self,
@@ -103,15 +100,13 @@ class LookupController(BaseController):
         Update the lookup with the given uid and payload.
         """
         try:
-            # Get the ip address from the request
-            ip_address = request.client.host
-
+            # Get the details from the service
             response: BaseModel = await self.service.update(
-                uid=uid,
-                payload=payload,
-                ip_address=ip_address,
-                guard=guard
-            )
+                    uid=uid,
+                    payload=payload,
+                    request=request,
+                    guard=guard
+                )
 
             # Send data from the service
             return JsonSuccessResponse(
@@ -119,7 +114,6 @@ class LookupController(BaseController):
             )
         except Exception as e:
             raise e
-
 
     async def delete(
             self,
@@ -130,14 +124,12 @@ class LookupController(BaseController):
         Delete the lookup data with the given uid.
         """
         try:
-            # Get the ip address from the request
-            ip_address = request.client.host
-
+            # Get the details from the service
             response: BaseModel = await self.service.delete(
-                uid=uid,
-                ip_address=ip_address,
-                guard=guard
-            )
+                    uid=uid,
+                    request=request,
+                    guard=guard
+                )
 
             # Send data from the service
             return JsonSuccessResponse(

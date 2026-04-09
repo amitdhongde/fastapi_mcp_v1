@@ -1,12 +1,14 @@
 """ Import the required modules """
-from typing import Optional
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import (
         Boolean,
+        ForeignKey,
         Integer,
         String,
         BigInteger
     )
-from sqlalchemy.orm import (Mapped, mapped_column)
+from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
 # Import Base Schema classes & models
 from modules.base.db.base import (
@@ -16,6 +18,18 @@ from modules.base.db.base import (
 
 # Import Enums
 from modules.core.enums.lookup import LookupMaster
+
+# Constants for foreign key references
+ORGANIZATIONS_FK = 'organizations.id'
+
+if TYPE_CHECKING:
+    from modules.core.schemas import (
+        OrganizationSchema
+    )
+
+def relationship_back_populates_organization() -> OrganizationSchema:
+    from modules.core.schemas import OrganizationSchema
+    return OrganizationSchema
 
 class LookupSchema(BaseSchemaAuditLog, BaseDB):
     """
@@ -30,7 +44,7 @@ class LookupSchema(BaseSchemaAuditLog, BaseDB):
     __tablename__ = "lookups"
 
     # Foreign fields
-    organization_id: Mapped[int] = mapped_column(
+    organization_id: Mapped[BigInteger] = mapped_column(
         BigInteger, default=0, index=True
     )
 
@@ -45,9 +59,16 @@ class LookupSchema(BaseSchemaAuditLog, BaseDB):
         String(128), nullable=False, index=True
     )
     description: Mapped[Optional[str]] = mapped_column(
-        String(8000), nullable=True, index=False
+        String(8000), nullable=True
     )
 
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
     is_secure: Mapped[bool] = mapped_column(Boolean, default=False)  # Not User Editable
     order_by: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Relationships
+    # organization: Mapped[Optional["OrganizationSchema"]] = relationship(
+    #         relationship_back_populates_organization,
+    #         lazy="selectin",
+    #         foreign_keys=[organization_id]
+    #     )

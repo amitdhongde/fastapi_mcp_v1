@@ -48,7 +48,8 @@ class AuthFullResponse(Auth):
             'user_read', 'user_update', 'user_delete', 'user_create',
             'organization_read', 'organization_update', 'organization_delete',
             'organization_create',
-            'note_read', 'note_update', 'note_delete', 'note_create'
+            'note_read', 'note_update', 'note_delete', 'note_create',
+            'lookup_read', 'lookup_update', 'lookup_delete', 'lookup_create',
         ]
 
     model_config = ConfigDict(
