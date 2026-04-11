@@ -1,7 +1,7 @@
 """ Import the required modules """
 import datetime
 import time
-from typing_extensions import Self
+from typing_extensions import Self, Optional
 from pydantic import (
         Field,
         model_validator
@@ -64,3 +64,8 @@ class NoteUpdateRequest(NoteBaseModel):
     """
     Model for note update request.
     """
+    entity_type_id: Optional[int] = Field(description="Type of the entity."
+        )
+    reference_id: Optional[int] = Field(description="ID of the reference entity.",
+            examples=[1], le=1
+        )

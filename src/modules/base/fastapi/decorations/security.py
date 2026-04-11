@@ -1,5 +1,5 @@
 import functools
-from typing import Any, Callable, Annotated
+from typing import Any, Callable
 from fastapi import Depends
 
 # Include the project models

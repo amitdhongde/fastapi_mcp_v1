@@ -5,9 +5,7 @@ from starlette.requests import Request
 from pydantic import TypeAdapter
 
 # Include the project models
-from modules.base.fastapi.dependencies.authentication import (
-        AuthGuard
-    )
+from modules.base.models import CustomBaseModel
 from modules.note.models import (
         NoteUpdateRequest,
         NoteFullResponse,
@@ -45,13 +43,13 @@ class NoteService(BaseService):
     async def create(
             self, payload: dict,
             request: Request,
-            guard: AuthGuard) -> NoteFullResponse:
+            claim: CustomBaseModel) -> NoteFullResponse:
         """ Create a new object """
         try :
             # Validate the credentials
             response = await self.repository.create(
                     payload,
-                    guard.get_token_value('user_id')
+                    self.get_data(claim).get('user_id')
                 )
 
             if not response:
@@ -74,19 +72,22 @@ class NoteService(BaseService):
             self, uid: str,
             payload: NoteUpdateRequest,
             request: Request,
-            guard: AuthGuard) -> NoteFullResponse:
+            claim: CustomBaseModel) -> NoteFullResponse:
         """ Update the model """
         try:
+            # Set local variable for the payload
+            user_id: int = self.get_data(claim).get('user_id')
+
             # Build the conditions for the query
             conditions = {}
-            if guard is not None:
-                conditions["created_by"] = guard.get_token_value('user_id')
+            if user_id is not None:
+                conditions["created_by"] = user_id
 
             # Get the claim from storage
             response = await self.repository.update_by_uid(
                     uid, payload,
                     conditions=conditions,
-                    updated_by=guard.get_token_value('user_id')
+                    updated_by=user_id
                 )
             if not response:
                 raise EntityNotSavedException(
@@ -107,18 +108,21 @@ class NoteService(BaseService):
     async def delete(
             self, uid: str,
             request: Request,
-            guard: AuthGuard) -> NoteFullResponse:
+            claim: CustomBaseModel) -> NoteFullResponse:
         """ Delete the model """
         try:
+            # Set local variable for the payload
+            user_id: int = self.get_data(claim).get('user_id')
+
             # Build the conditions for the query
             conditions = {}
-            if guard is not None:
-                conditions["created_by"] = guard.get_token_value('user_id')
+            if user_id is not None:
+                conditions["created_by"] = user_id
 
             response = await self.repository.delete_by_uid(
                     uid,
                     conditions=conditions,
-                    deleted_by=guard.get_token_value('user_id')
+                    deleted_by=user_id
                 )
             if not response:
                 raise EntityNotFoundException(
@@ -140,17 +144,20 @@ class NoteService(BaseService):
             self,
             commons: dict,
             request: Request,
-            guard: AuthGuard
+            claim: CustomBaseModel
         ) -> List[NoteMinorResponse]:
         """ List all the objects """
         try:
+            # Set local variable for the payload
+            user_id: int = self.get_data(claim).get('user_id')
+
             # Get the ip address from the request
             ip_address = request.client.host if request is not None else "0.0.0.0"
 
             # Create conditions for the query
             conditions = {}
-            if guard is not None:
-                conditions["created_by"] = guard.get_token_value('user_id')
+            if user_id is not None:
+                conditions["created_by"] = user_id
 
             # Conditions for the query
             if commons.get("q") is not None:
@@ -182,13 +189,16 @@ class NoteService(BaseService):
             self,
             uid: str,
             request: Request,
-            guard: AuthGuard) -> NoteFullResponse:
+            claim: CustomBaseModel) -> NoteFullResponse:
         """ Get the object """
         try:
+            # Set local variable for the payload
+            user_id: int = self.get_data(claim).get('user_id')
+
             # Create conditions for the query
             conditions = {}
-            if guard is not None:
-                conditions["created_by"] = guard.get_token_value('user_id')
+            if user_id is not None:
+                conditions["created_by"] = user_id
 
             # Validate the payload
             response = await self.repository.get_by_hash(uid, conditions=conditions)

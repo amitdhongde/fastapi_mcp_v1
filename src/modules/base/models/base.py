@@ -31,7 +31,6 @@ class ApplicationBaseModel(CustomBaseModel):
 
     id: int = Field(..., description="UID", ge=1, examples=[1])
 
-
 class AppBaseModelWithHash(ApplicationBaseModel):
     """
     Base model for the application with hash.
@@ -42,12 +41,10 @@ class AppBaseModelWithHash(ApplicationBaseModel):
     def serialize_hash(self, value: UUID) -> str:
         return str(value)
 
-
 class AppBaseModelWithAuditLog(ApplicationBaseModel):
     """
     Base model for the application with hash and audit log.
     """
-
     created_by: int = Field(
         default=0, description="Created By", exclude=True
     )
@@ -67,7 +64,6 @@ class AppBaseModelWithAuditLog(ApplicationBaseModel):
     deleted_at: Optional[datetime] = Field(
         default=None, description="Deleted At", exclude=True
     )
-
     is_active: int = Field(
         default=1, description="Is Active", exclude=True
     )
@@ -86,7 +82,6 @@ class AppBaseModelWithAuditLog(ApplicationBaseModel):
 
         return return_value
 
-
 class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
     """
     Base model for the application with hash.
@@ -96,7 +91,6 @@ class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
     @field_serializer('hash', when_used='json')
     def serialize_hash(self, value: UUID) -> str:
         return str(value)
-
 
 class GenericResponse(CustomBaseModel, Generic[T]):
     """
@@ -108,7 +102,6 @@ class GenericResponse(CustomBaseModel, Generic[T]):
     data: Optional[SerializeAsAny[T]] = None
     errors: Optional[SerializeAsAny[dict]] = None
     metadata: Optional[SerializeAsAny[dict]] = None
-
 
 class GenericSuccessResponse(GenericResponse, Generic[T]):
     """

@@ -17,19 +17,16 @@ from modules.base.config import config
 from modules.base.services.aws.dynamodb import DynamoDBService
 
 from modules.base.helpers.token import TokenHelper
-from .token_service import TokenService
 
 class ClaimService:
     """ ClaimService class to handle claims related operations.
 
     This class is responsible for creating, deleting and retrieving claims.
-    It uses the TokenService to generate tokens and the storage service
+    It uses the TokenHelper to generate tokens and the storage service
     to store the claims.
     """
 
     def __init__(self):
-        self.token_service = TokenService()
-
         match config.CLAIM_STORAGE:
             case "dynamodb":
                 # Initialize the DynamoDB service with the table name

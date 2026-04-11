@@ -6,9 +6,7 @@ from pydantic import BaseModel
 # Include the project dependencies
 from modules.base.controller import BaseController
 from modules.base.models.response import JsonSuccessResponse
-from modules.base.fastapi.dependencies.authentication import (
-        AuthGuard
-    )
+from modules.base.models.auth import AuthClaim
 from modules.note.services import NoteService
 from modules.core.services import LookupService
 
@@ -33,7 +31,7 @@ class NoteController(BaseController):
             self,
             commons: dict,
             request: Request,
-            guard: AuthGuard) -> JsonSuccessResponse:
+            claim: AuthClaim) -> JsonSuccessResponse:
         """
         Get all the notes.
         """
@@ -42,7 +40,7 @@ class NoteController(BaseController):
             response: BaseModel = await self.service.list(
                     commons=commons,
                     request=request,
-                    guard=guard
+                    claim=claim
                 )
 
             # Send data from the service
@@ -56,7 +54,7 @@ class NoteController(BaseController):
             self,
             uid: str,
             request: Request,
-            guard: AuthGuard) -> JsonSuccessResponse:
+            claim: AuthClaim) -> JsonSuccessResponse:
         """
         Get the note with the given uid.
         """
@@ -65,7 +63,7 @@ class NoteController(BaseController):
             response: BaseModel = await self.service.get(
                 uid=uid,
                 request=request,
-                guard=guard
+                claim=claim
             )
 
             # Send data from the service
@@ -79,7 +77,7 @@ class NoteController(BaseController):
             self,
             payload: NoteCreateRequest,
             request: Request,
-            guard: AuthGuard) -> JsonSuccessResponse:
+            claim: AuthClaim) -> JsonSuccessResponse:
         """ Create a new note for the current user """
         try:
             # Fetch the entity_type from request context
@@ -91,14 +89,17 @@ class NoteController(BaseController):
             # Convert the payload to dict
             payload = payload.model_dump()
 
+            # Get the token data from the claim
+            token_data = self.get_token_data(claim)
+
             # Add the additional information to the payload
-            payload["organization_id"] = guard.get_token_value('org_id')
+            payload["organization_id"] = token_data.get('org_id')
             payload["entity_type_id"] = entity_type_lookup.id
 
             response: BaseModel = await self.service.create(
                 payload,
                 request=request,
-                guard=guard
+                claim=claim
             )
 
             # Send data from the service
@@ -113,7 +114,7 @@ class NoteController(BaseController):
             self, uid: str,
             payload: NoteUpdateRequest,
             request: Request,
-            guard: AuthGuard) -> JsonSuccessResponse:
+            claim: AuthClaim) -> JsonSuccessResponse:
         """ Update the note with the given uid """
         try:
             # Convert the payload to dict
@@ -123,7 +124,7 @@ class NoteController(BaseController):
                     uid,
                     payload,
                     request=request,
-                    guard=guard
+                    claim=claim
                 )
 
             # Send data from the service
@@ -137,13 +138,13 @@ class NoteController(BaseController):
     async def delete(
             self, uid: str,
             request: Request,
-            guard: AuthGuard) -> JsonSuccessResponse:
+            claim: AuthClaim) -> JsonSuccessResponse:
         """ Delete the note with the given uid """
         try:
             response: BaseModel = await self.service.delete(
                     uid,
                     request=request,
-                    guard=guard
+                    claim=claim
                 )
 
             # Send data from the service

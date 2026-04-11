@@ -1,13 +1,23 @@
-from pydantic import BaseModel, ConfigDict, computed_field
+""" Import the required modules """
+from pydantic import (
+        ConfigDict,
+        computed_field
+    )
 
+# Include the project models
+from modules.base.models import CustomBaseModel
 from .token import Token as AuthToken
 
-class AuthClaim(BaseModel):
+class AuthClaim(CustomBaseModel):
     """
     AuthClaim model for the application.
     This model is used to store the authentication claim for a user.
     It contains the token, auth data, privileges, settings, and unread notifications.
     """
+    model_config = ConfigDict(
+            extra='allow'
+        )
+
     token: AuthToken | None = None
     auth: dict = {}
 
@@ -24,9 +34,3 @@ class AuthClaim(BaseModel):
         if self.token is None:
             return 0
         return self.token.expires_at
-
-    model_config = ConfigDict(
-        extra='allow',
-        populate_by_name=True,
-        from_attributes=True
-    )

@@ -22,11 +22,6 @@ from modules.note.models import (
         NoteUpdateRequest
     )
 
-# Include the project exceptions
-from modules.base.exceptions import (
-        InvalidTokenException
-    )
-
 router = APIRouter(prefix="/note", tags=["Notes"])
 
 @router.get("/",
@@ -47,7 +42,7 @@ async def index(
     """
     Get all note data.
     """
-    return await controller.index(commons, request, guard)
+    return await controller.index(commons, request, guard.get_claim())
 
 @router.get("/{uid}",
         dependencies=[Depends(get_auth_guard)],
@@ -64,7 +59,7 @@ async def show(
     """
     Get the note data with the given UID.
     """
-    return await controller.show(uid, request, guard)
+    return await controller.show(uid, request, guard.get_claim())
 
 @router.post("/",
         dependencies=[Depends(get_auth_guard)],
@@ -83,7 +78,7 @@ async def create(
     """
     return await controller.create(
             payload, request,
-            guard
+            guard.get_claim()
         )
 
 @router.put("/{uid}",
@@ -104,7 +99,7 @@ async def update(
     """
     return await controller.update(
             uid, payload, request,
-            guard
+            guard.get_claim()
         )
 
 @router.delete("/{uid}",
@@ -124,5 +119,5 @@ async def delete(
     """
     return await controller.delete(
             uid, request,
-            guard
+            guard.get_claim()
         )

@@ -1,11 +1,11 @@
 """ Import the required modules """
-from fastapi import Request
-from pydantic import BaseModel
 
 # Include the project modules
+from modules.base.models.auth import AuthClaim, AccessToken
 from modules.base.models.response import JsonSuccessResponse
-from modules.base.fastapi.dependencies.authentication import (
-        AuthGuard
+from modules.base.helpers import TokenHelper
+from modules.base.exceptions import (
+        InvalidTokenException
     )
 
 class BaseController():
@@ -19,6 +19,23 @@ class BaseController():
         additional setup.
         """
         pass
+
+    def get_token_data(self, claim: AuthClaim) -> dict:
+        """
+        Extracts and returns the token data from the provided AuthClaim
+        instance.
+
+        Args:
+            claim (AuthClaim): An instance of AuthClaim containing the
+            token data.
+
+        Returns:
+            dict: A dictionary containing the extracted token data.
+        """
+        token: AccessToken|None = claim.token if claim else None
+        if token is None:
+            raise InvalidTokenException("No access token found in the claim.")
+        return TokenHelper.decode(token.access_token)
 
     # async def show(
     #         self,
