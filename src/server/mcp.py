@@ -3,6 +3,8 @@ import logging
 import uvicorn
 
 from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 from fastmcp.server.lifespan import lifespan
 
 # Import the project configuration
@@ -103,6 +105,10 @@ def subtract_numbers(a: int, b: int) -> dict:
     """Subtract two numbers and return the result."""
     result = a - b
     return {"result": result}
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request: Request) -> PlainTextResponse:
+    return PlainTextResponse("OK")
 
 # Create the MCP ASGI app with the defined tools
 mcp_app = mcp.http_app(path="/mcp")
